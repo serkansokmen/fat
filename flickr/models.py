@@ -2,6 +2,7 @@ from urllib.request import urlopen
 from django.core.files import File
 from django.core.files.temp import NamedTemporaryFile
 from django.db import models
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch.dispatcher import receiver
@@ -10,28 +11,11 @@ from sorl.thumbnail import ImageField
 from multiselectfield import MultiSelectField
 
 
-class Image(models.Model):
+def get_flickr_licenses():
+    return ((l.get('id'), l.get('name')) for l in settings.FLICKR_LICENSES)
 
-    IMAGE_STATES = (
-        (0, _('Indeterminate')),
-        (1, _('Discarded')),
-        (2, _('Approved')),
-        (3, _('Completed')),
-    )
 
-    LICENSES = (
-        ('0', _('All Rights Reserved')),
-        ('1', _('Attribution-NonCommercial-ShareAlike')),
-        ('2', _('Attribution-NonCommercial')),
-        ('3', _('Attribution-NonCommercial-NoDerivs')),
-        ('4', _('Attribution')),
-        ('5', _('Attribution-ShareAlike')),
-        ('6', _('Attribution-NoDerivs')),
-        ('7', _('No known copyright restrictions')),
-        ('8', _('United States Government Work')),
-    )
-
-    state = models.IntegerField(choices=IMAGE_STATES, blank=True, null=True)
+class FlickrImage(models.Model):
 
     id = models.CharField(max_length=255, primary_key=True)
     title = models.CharField(max_length=255, blank=True, null=True)
@@ -41,7 +25,7 @@ class Image(models.Model):
     server = models.CharField(max_length=255)
     farm = models.IntegerField()
 
-    license = models.CharField(max_length=2, choices=LICENSES, blank=True, null=True)
+    license = models.CharField(max_length=2, choices=get_flickr_licenses(), blank=True, null=True)
     tags = models.TextField(blank=True, null=True)
 
     ispublic = models.NullBooleanField()
@@ -51,18 +35,8 @@ class Image(models.Model):
     created_at = models.DateTimeField(auto_now=False, auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, auto_now_add=False)
 
-    def download_image(self):
-        if not self.image:
-            img_id = self.id
-            img_url = self.get_flickr_url()
-            img_temp = NamedTemporaryFile(delete=True)
-            img_temp.write(urlopen(img_url).read())
-            img_temp.flush()
-            self.image.save(img_id + '.jpg', File(img_temp))
-
     class Meta:
-        verbose_name = _('Image')
-        verbose_name_plural = _('Images')
+        abstract = True
         get_latest_by = 'updated_at'
         ordering = ['-state', '-created_at', '-updated_at',]
 
@@ -84,6 +58,29 @@ class Image(models.Model):
     image_tag.short_description = _('Image')
     image_tag.allow_tags = True
 
+    def download_image(self):
+        if not self.image:
+            img_id = self.id
+            img_url = self.get_flickr_url()
+            img_temp = NamedTemporaryFile(delete=True)
+            img_temp.write(urlopen(img_url).read())
+            img_temp.flush()
+            self.image.save(img_id + '.jpg', File(img_temp))
+
+
+class DiscardedImage(FlickrImage):
+
+    class Meta:
+        verbose_name = _('Discarded image')
+        verbose_name_plural = _('Discarded images')
+
+
+class Image(FlickrImage):
+
+    class Meta:
+        verbose_name = _('Selected image')
+        verbose_name_plural = _('Selected images')
+
 
 class Search(models.Model):
 
@@ -99,7 +96,7 @@ class Search(models.Model):
     user_id = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now=False, auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, auto_now_add=False)
-    licenses = MultiSelectField(max_length=20, choices=Image.LICENSES)
+    licenses = MultiSelectField(max_length=20, choices=get_flickr_licenses())
     images = models.ManyToManyField(Image, related_name='search', blank=True)
 
     class Meta:
@@ -111,14 +108,11 @@ class Search(models.Model):
     def __str__(self):
         return '{}'.format(self.tags)
 
-    def get_images_of_state(self, state):
-        return self.images.filter(state=state[0])
-
 
 @receiver(post_delete, sender=Search)
 def clean_search_images(sender, instance, **kwargs):
     for image in Image.objects.all():
-        if image.search.count() == 0 and image.state == Image.IMAGE_STATES[0][0]:
+        if image.search.count() == 0:
             image.delete()
 
 

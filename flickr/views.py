@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
-from .models import Search, Image, Annotation
+from .models import Search, Image, DiscardedImage, Annotation
 from .serializers import SearchSerializer, ImageSerializer, AnnotationSerializer
 
 
@@ -118,11 +118,12 @@ def flickr(request):
                 'isfriend': image['isfriend'],
                 'isfamily': image['isfamily'],
                 'state': {
-                    'value': Image.IMAGE_STATES[0][0],
-                    'label': Image.IMAGE_STATES[0][1],
+                    'value': 0,
+                    'label': _('Selected'),
                 }
             } for image in photos_results
                 if not Image.objects.filter(id=image.get('id')).exists()
+                    and not DiscardedImage.objects.filter(id=image.get('id')).exists()
             ][req_cursor:req_cursor + req_perpage]
 
             response_image_ids = [img.get('id') for img in response_images]
