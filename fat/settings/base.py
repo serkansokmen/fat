@@ -18,8 +18,10 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 DEBUG = False
 ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
     '.compute-1.amazonaws.com',
-    'c.snnd.co',
+    '.elasticbeanstalk.com'
 ]
 try:
     EC2_IP = requests.get('http://169.254.169.254/latest/meta-data/local-ipv4').text
