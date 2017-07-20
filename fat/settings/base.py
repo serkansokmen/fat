@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 '''
 
 import os
+import requests
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -17,10 +18,14 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 DEBUG = False
 ALLOWED_HOSTS = [
-    os.getenv('STATIC_HOSTING_URL'),
     '.compute-1.amazonaws.com',
     'c.snnd.co',
 ]
+try:
+    EC2_IP = requests.get('http://169.254.169.254/latest/meta-data/local-ipv4').text
+    ALLOWED_HOSTS.append(EC2_IP)
+except requests.exceptions.RequestException:
+    pass
 
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
