@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 '''
 
 import os
-import requests
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,11 +22,33 @@ ALLOWED_HOSTS = [
     '.compute-1.amazonaws.com',
     '.elasticbeanstalk.com'
 ]
-try:
-    EC2_IP = requests.get('http://169.254.169.254/latest/meta-data/local-ipv4').text
-    ALLOWED_HOSTS.append(EC2_IP)
-except requests.exceptions.RequestException:
-    pass
+
+def is_ec2_linux():
+    """Detect if we are running on an EC2 Linux Instance
+       See http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/identify_ec2_instances.html
+    """
+    if os.path.isfile("/sys/hypervisor/uuid"):
+        with open("/sys/hypervisor/uuid") as f:
+            uuid = f.read()
+            return uuid.startswith("ec2")
+    return False
+
+def get_linux_ec2_private_ip():
+    """Get the private IP Address of the machine if running on an EC2 linux server"""
+    import requests
+    if not is_ec2_linux():
+        return None
+    try:
+        return requests.get('http://169.254.169.254/latest/meta-data/local-ipv4').text
+    except requests.exceptions.RequestException:
+        pass
+
+# ElasticBeanstalk healthcheck sends requests with host header = internal ip
+# So we detect if we are in elastic beanstalk,
+# and add the instances private ip address
+private_ip = get_linux_ec2_private_ip()
+if private_ip:
+    ALLOWED_HOSTS.append(private_ip)
 
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
