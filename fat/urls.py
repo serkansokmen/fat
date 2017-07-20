@@ -6,8 +6,8 @@ from django.views.generic.base import TemplateView
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from rest_framework import routers
 from rest_framework.schemas import get_schema_view
-import flickr.api as flickr_api
-from flickr.api import flickr
+import flickr.views as flickr_api
+from flickr.views import flickr
 
 schema_view = get_schema_view(title='Flickr Search Tool API')
 
