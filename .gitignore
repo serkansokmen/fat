@@ -1,6 +1,12 @@
-.cloak/
-backup/
+*.pyc
+*.sqlite3
+cache/
+.DS_Store
+staticfiles/
+media/
+*.log
 .env
+*.rdb
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*

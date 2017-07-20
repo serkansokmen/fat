@@ -1,7 +1,0 @@
-<div class="column" [style.column-count]="cardOptions.id == 0 ? 1 : columnCount">
-  <fat-card *ngFor="let image of images"
-    [image]="image"
-    (onImageClick)="handleCardClick($event)"
-    [cardOptions]="cardOptions"
-    [isActionsVisible]="cardOptions?.isActionsVisible"></fat-card>
-</div>
