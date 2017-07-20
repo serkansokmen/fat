@@ -19,8 +19,8 @@ DEBUG = False
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
-    '.compute-1.amazonaws.com',
-    '.elasticbeanstalk.com'
+    '.amazonaws.com',
+    '.elasticbeanstalk.com',
 ]
 
 def is_ec2_linux():
