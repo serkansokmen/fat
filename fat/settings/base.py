@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 '''
 
 import os
+from django.utils.translation import ugettext_lazy as _
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -254,15 +255,26 @@ FLICKR_API_KEY = os.getenv('FLICKR_API_KEY')
 FLICKR_API_SECRET = os.getenv('FLICKR_API_SECRET')
 FORCE_LOWERCASE_TAGS = True
 FLICKR_LICENSES = (
-  {'id': 0, 'name': 'All Rights Reserved', 'url': ''},
-  {'id': 1, 'name': 'Attribution-NonCommercial-ShareAlike License', 'url': 'http://creativecommons.org/licenses/by-nc-sa/2.0/'},
-  {'id': 2, 'name': 'Attribution-NonCommercial License', 'url': 'http://creativecommons.org/licenses/by-nc/2.0/'},
-  {'id': 3, 'name': 'Attribution-NonCommercial-NoDerivs License', 'url': 'http://creativecommons.org/licenses/by-nc-nd/2.0/'},
-  {'id': 4, 'name': 'Attribution License', 'url': 'http://creativecommons.org/licenses/by/2.0/'},
-  {'id': 5, 'name': 'Attribution-ShareAlike License', 'url': 'http://creativecommons.org/licenses/by-sa/2.0/'},
-  {'id': 6, 'name': 'Attribution-NoDerivs License', 'url': 'http://creativecommons.org/licenses/by-nd/2.0/'},
-  {'id': 7, 'name': 'No known copyright restrictions', 'url': 'http://flickr.com/commons/usage/'},
-  {'id': 8, 'name': 'United States Government Work', 'url': 'http://www.usa.gov/copyright.shtml'},
+  (0, _('All Rights Reserved')),
+  (1, _('Attribution-NonCommercial-ShareAlike License')),
+  (2, _('Attribution-NonCommercial License')),
+  (3, _('Attribution-NonCommercial-NoDerivs License')),
+  (4, _('Attribution License')),
+  (5, _('Attribution-ShareAlike License')),
+  (6, _('Attribution-NoDerivs License')),
+  (7, _('No known copyright restrictions')),
+  (8, _('United States Government Work')),
+)
+FLICKR_LICENSE_URLS = (
+  (0, ''),
+  (1, 'http://creativecommons.org/licenses/by-nc-sa/2.0/'),
+  (2, 'http://creativecommons.org/licenses/by-nc/2.0/'),
+  (3, 'http://creativecommons.org/licenses/by-nc-nd/2.0/'),
+  (4, 'http://creativecommons.org/licenses/by/2.0/'),
+  (5, 'http://creativecommons.org/licenses/by-sa/2.0/'),
+  (6, 'http://creativecommons.org/licenses/by-nd/2.0/'),
+  (7, 'http://flickr.com/commons/usage/'),
+  (8, 'http://www.usa.gov/copyright.shtml'),
 )
 
 

@@ -3,15 +3,15 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers, permissions, response
 from drf_extra_fields.fields import Base64ImageField
-from .models import Search, Image, DiscardedImage, Annotation, get_flickr_licenses
+from .models import Search, Image, DiscardedImage, Annotation
 
 
 class ImageSerializer(serializers.ModelSerializer):
-
-    state = serializers.ChoiceField(choices=(
+    STATES = (
         (0, _('Selected')),
         (1, _('Discarded')),
-    ), default=0)
+    )
+    state = serializers.ChoiceField(choices=STATES, default=0)
 
     class Meta:
         model = Image
@@ -27,7 +27,7 @@ class ImageSerializer(serializers.ModelSerializer):
 
 class SearchSerializer(serializers.ModelSerializer):
 
-    licenses = serializers.MultipleChoiceField(choices=get_flickr_licenses(), allow_blank=True)
+    licenses = serializers.MultipleChoiceField(choices=settings.FLICKR_LICENSES, allow_blank=True)
     tag_mode = serializers.ChoiceField(choices=Search.TAG_MODES, allow_blank=False, default=Search.TAG_MODES[0])
     images = ImageSerializer(many=True)
 

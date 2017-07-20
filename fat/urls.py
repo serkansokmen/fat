@@ -15,7 +15,6 @@ router = routers.DefaultRouter()
 router.register(r'search', flickr_api.SearchViewSet)
 router.register(r'images', flickr_api.ImageViewSet)
 router.register(r'annotations', flickr_api.AnnotationViewSet)
-# router.register(r'licenses', flickr_api.LicenseViewSet)
 
 urlpatterns = [
     url(r'^api/v1/', include(router.urls)),
@@ -24,7 +23,6 @@ urlpatterns = [
 urlpatterns += [
     url(r'^admin/', admin.site.urls),
     url(r'^auth/', include('rest_auth.urls')),
-    url(r'^api/v1/licenses/', flickr_api.LicenseView.as_view()),
     url(r'^api/v1/schema/$', schema_view),
     url(r'^api/v1/flickr/', flickr, name='flickr'),
     url(r'^$', TemplateView.as_view(template_name='flickr/app.html')),
