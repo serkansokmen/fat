@@ -43,14 +43,16 @@ class FlickrImage(models.Model):
         return 'https://farm{}.staticflickr.com/{}/{}_{}'.format(
             self.farm, self.server, self.id, self.secret)
 
+    @property
     def get_flickr_url(self):
         return '{}.jpg'.format(self.get_flickr_image_base())
 
+    @property
     def get_flickr_thumbnail(self):
         return '{}_q.jpg'.format(self.get_flickr_image_base())
 
     def image_tag(self):
-        return '<img src="{}" />'.format(self.get_flickr_thumbnail())
+        return '<img src="{}" />'.format(self.get_flickr_thumbnail)
     image_tag.short_description = _('Image')
     image_tag.allow_tags = True
 
@@ -135,12 +137,12 @@ class Annotation(models.Model):
             <img height="120" src="{}" />
             <img height="120" src="{}" />
         </div>
-        '''.format(self.image.get_flickr_thumbnail(), self.skin_pixels_image.url)
+        '''.format(self.image.get_flickr_thumbnail, self.skin_pixels_image.url)
     preview_tag.short_description = _('Skin pixels comparison')
     preview_tag.allow_tags = True
 
     def image_tag(self):
-        return '<img height="120" src="{}" />'.format(self.image.get_flickr_thumbnail())
+        return '<img height="120" src="{}" />'.format(self.image.get_flickr_thumbnail)
     image_tag.short_description = _('Original image')
     image_tag.allow_tags = True
 

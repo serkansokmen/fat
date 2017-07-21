@@ -12,6 +12,8 @@ class ImageSerializer(serializers.ModelSerializer):
         (1, _('Discarded')),
     )
     state = serializers.ChoiceField(choices=STATES, default=0)
+    flickr_url = serializers.ReadOnlyField(source='get_flickr_url')
+    flickr_thumbnail = serializers.ReadOnlyField(source='get_flickr_thumbnail')
 
     class Meta:
         model = Image
@@ -19,10 +21,10 @@ class ImageSerializer(serializers.ModelSerializer):
         fields = ('id', 'secret', 'title',
             'owner', 'secret', 'server', 'farm',
             'license', 'tags',
-            'image', 'license',
+            'image', 'flickr_thumbnail', 'flickr_url', 'license',
             'ispublic', 'isfriend', 'isfamily',
             'state')
-        read_only_fields = ('image',)
+        read_only_fields = ('image', 'flickr_thumbnail', 'flickr_url')
 
 
 class SearchSerializer(serializers.ModelSerializer):
