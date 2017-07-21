@@ -15,7 +15,6 @@ class FlickrImage(models.Model):
 
     id = models.CharField(max_length=255, primary_key=True)
     title = models.CharField(max_length=255, blank=True, null=True)
-    image = ImageField(upload_to='flickr_images', blank=True, null=True)
     owner = models.CharField(max_length=255)
     secret = models.CharField(max_length=255, unique=True)
     server = models.CharField(max_length=255)
@@ -75,6 +74,8 @@ class DiscardedImage(FlickrImage):
 
 class Image(FlickrImage):
 
+    image = ImageField(upload_to='flickr_images', blank=True, null=True)
+
     class Meta:
         verbose_name = _('Selected image')
         verbose_name_plural = _('Selected images')
@@ -105,13 +106,6 @@ class Search(models.Model):
 
     def __str__(self):
         return '{}'.format(self.tags)
-
-
-@receiver(post_delete, sender=Search)
-def clean_search_images(sender, instance, **kwargs):
-    for image in Image.objects.all():
-        if image.search.count() == 0:
-            image.delete()
 
 
 class Annotation(models.Model):
@@ -150,3 +144,22 @@ class Annotation(models.Model):
         return '<img height="120" src="{}" />'.format(self.skin_pixels_image.url)
     skin_pixels_image_tag.short_description = _('Skin pixels')
     skin_pixels_image_tag.allow_tags = True
+
+
+@receiver(post_delete, sender=Image)
+def clean_image_images(sender, instance, **kwargs):
+    if instance.image.image is not None:
+        instance.image.image.delete()
+
+
+@receiver(post_delete, sender=Search)
+def clean_search_images(sender, instance, **kwargs):
+    for image in Image.objects.all():
+        if image.search.count() == 0:
+            image.delete()
+
+
+@receiver(post_delete, sender=Annotation)
+def clean_annotation_images(sender, instance, **kwargs):
+    if instance.skin_pixels_image.image is not None:
+        instance.skin_pixels_image.image.delete()
