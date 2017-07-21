@@ -127,9 +127,9 @@ class Annotation(models.Model):
 
     def preview_tag(self):
         return '''
-        <div>
+        <div style="position:relative;">
             <img height="200" src="{}" />
-            <img height="200" src="{}" />
+            <img height="200" src="{}" style="position:absolute;left:0;top:0;"/>
         </div>
         '''.format(self.image.get_flickr_url, self.skin_pixels_image.url)
     preview_tag.short_description = _('Skin pixels comparison')
