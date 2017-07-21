@@ -131,7 +131,7 @@ class Annotation(models.Model):
             <img height="200" src="{}" />
             <img height="200" src="{}" />
         </div>
-        '''.format(self.image.get_flickr_thumbnail, self.skin_pixels_image.url)
+        '''.format(self.image.get_flickr_url, self.skin_pixels_image.url)
     preview_tag.short_description = _('Skin pixels comparison')
     preview_tag.allow_tags = True
 
