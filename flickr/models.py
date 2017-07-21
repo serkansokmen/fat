@@ -51,8 +51,8 @@ class FlickrImage(models.Model):
         return '{}_q.jpg'.format(self.get_flickr_image_base())
 
     def image_tag(self):
-        return '<img src="{}" />'.format(self.get_flickr_thumbnail)
-    image_tag.short_description = _('Image')
+        return '<img src="{}" height="200" />'.format(self.get_flickr_url)
+    image_tag.short_description = _('Original image')
     image_tag.allow_tags = True
 
     def download_image(self):
@@ -74,7 +74,7 @@ class DiscardedImage(FlickrImage):
 
 class Image(FlickrImage):
 
-    image = ImageField(upload_to='flickr_images', blank=True, null=True)
+    image = ImageField(_('Locally saved image'), upload_to='flickr_images', blank=True, null=True)
 
     class Meta:
         verbose_name = _('Selected image')
@@ -128,20 +128,20 @@ class Annotation(models.Model):
     def preview_tag(self):
         return '''
         <div>
-            <img height="120" src="{}" />
-            <img height="120" src="{}" />
+            <img height="200" src="{}" />
+            <img height="200" src="{}" />
         </div>
         '''.format(self.image.get_flickr_thumbnail, self.skin_pixels_image.url)
     preview_tag.short_description = _('Skin pixels comparison')
     preview_tag.allow_tags = True
 
     def image_tag(self):
-        return '<img height="120" src="{}" />'.format(self.image.get_flickr_thumbnail)
+        return '<img height="200" src="{}" />'.format(self.image.get_flickr_url)
     image_tag.short_description = _('Original image')
     image_tag.allow_tags = True
 
     def skin_pixels_image_tag(self):
-        return '<img height="120" src="{}" />'.format(self.skin_pixels_image.url)
+        return '<img height="200" src="{}" />'.format(self.skin_pixels_image.url)
     skin_pixels_image_tag.short_description = _('Skin pixels')
     skin_pixels_image_tag.allow_tags = True
 

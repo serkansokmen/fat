@@ -29,7 +29,7 @@ class ImageAdmin(AdminImageMixin, admin.ModelAdmin):
     list_display_links = ('image_tag', 'id')
     list_filter = ('search', 'license',
         'ispublic', 'isfriend', 'isfamily')
-    readonly_fields = ('image_tag', 'ispublic', 'isfriend', 'isfamily')
+    readonly_fields = ('image_tag', 'ispublic', 'isfriend', 'isfamily', 'image')
     actions = [
         download_selected_images,
     ]
