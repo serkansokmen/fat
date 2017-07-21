@@ -51,8 +51,15 @@ class SearchAdmin(admin.ModelAdmin):
     readonly_fields = ('licenses',)
 
     def image_count(self, obj):
-        return obj.images.all().count()
+        return obj.images.count()
     image_count.short_description = _('Image count')
+
+    # def annotation_count(self, obj):
+    #     count = 0
+    #     for image in obj.images.all():
+    #         count = count + image.annotation_set.count()
+    #     return count
+    # annotation_count.short_description = _('Annotation count')
 
 
 @admin.register(Annotation)
