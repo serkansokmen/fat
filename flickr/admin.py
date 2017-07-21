@@ -7,43 +7,35 @@ from django.template.loader import render_to_string
 from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 from sorl.thumbnail.admin import AdminImageMixin
-from .models import Search, Image, Annotation
+from .models import Search, Image, DiscardedImage, Annotation
 
 
-def download_approved_images(modeladmin, request, queryset):
-    for image in Image.objects.filter(state=Image.IMAGE_STATES[2][0]):
+def download_selected_images(modeladmin, request, queryset):
+    for image in Image.objects.all():
         if not image.image:
             image.download_image()
 
-def set_images_indeterminate(modeladmin, request, queryset):
-    queryset.update(state=Image.IMAGE_STATES[0][0])
-set_images_indeterminate.short_description = "Mark selected as `Indeterminate`"
 
-def set_images_discarded(modeladmin, request, queryset):
-    queryset.update(state=Image.IMAGE_STATES[1][0])
-set_images_discarded.short_description = "Mark selected as `Discarded`"
-
-def set_images_approved(modeladmin, request, queryset):
-    queryset.update(state=Image.IMAGE_STATES[2][0])
-set_images_approved.short_description = "Mark selected as `Approved`"
+@admin.register(DiscardedImage)
+class DiscardedImageAdmin(AdminImageMixin, admin.ModelAdmin):
+    list_display = ('image_tag', 'id', 'secret', 'license', 'tags')
+    list_display_links = ('image_tag', 'id')
+    readonly_fields = ('image_tag', 'ispublic', 'isfriend', 'isfamily')
 
 
 @admin.register(Image)
 class ImageAdmin(AdminImageMixin, admin.ModelAdmin):
-    list_display = ('image_tag', 'state', 'id', 'secret', 'license', 'tags')
+    list_display = ('image_tag', 'id', 'secret', 'license', 'tags')
     list_display_links = ('image_tag', 'id')
-    list_filter = ('search', 'state', 'license',
+    list_filter = ('search', 'license',
         'ispublic', 'isfriend', 'isfamily')
     readonly_fields = ('image_tag', 'ispublic', 'isfriend', 'isfamily')
     actions = [
-        set_images_indeterminate,
-        set_images_discarded,
-        set_images_approved,
-        download_approved_images,
+        download_selected_images,
     ]
 
     def save_model(self, request, obj, form, change):
-        if obj.state == Image.IMAGE_STATES[2][0] and not obj.image:
+        if obj.image is None:
             obj.download_image()
         obj.save()
 
@@ -52,27 +44,15 @@ class ImageAdmin(AdminImageMixin, admin.ModelAdmin):
 class SearchAdmin(admin.ModelAdmin):
     list_display = (
         'tags',
-        'image_count_indeterminate',
-        'image_count_discarded',
-        'image_count_approved',
-        'image_count_processed',)
+        'image_count',)
     list_display_links = ('tags',)
     list_filter = ('tag_mode', 'user_id', 'created_at', 'updated_at',)
     filter_horizontal = ('images',)
     readonly_fields = ('licenses',)
 
-    def image_count_indeterminate(self, obj):
-        return obj.get_images_of_state(Image.IMAGE_STATES[0]).count()
-    image_count_indeterminate.short_description = _('{} image count'.format(Image.IMAGE_STATES[0][1]))
-    def image_count_discarded(self, obj):
-        return obj.get_images_of_state(Image.IMAGE_STATES[1]).count()
-    image_count_discarded.short_description = _('{} image count'.format(Image.IMAGE_STATES[1][1]))
-    def image_count_approved(self, obj):
-        return obj.get_images_of_state(Image.IMAGE_STATES[2]).count()
-    image_count_approved.short_description = _('{} image count'.format(Image.IMAGE_STATES[2][1]))
-    def image_count_processed(self, obj):
-        return obj.get_images_of_state(Image.IMAGE_STATES[3]).count()
-    image_count_processed.short_description = _('{} image count'.format(Image.IMAGE_STATES[3][1]))
+    def image_count(self, obj):
+        return obj.images.all().count()
+    image_count.short_description = _('Image count')
 
 
 @admin.register(Annotation)
