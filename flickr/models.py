@@ -126,12 +126,18 @@ class Annotation(models.Model):
         return '{}'.format(self.image.image)
 
     def preview_tag(self):
+        if self.skin_pixels_image:
+            return '''
+                <div style="position:relative;">
+                    <img height="200" src="{}" />
+                    <img height="200" src="{}" style="position:absolute;left:0;top:0;"/>
+                </div>
+            '''.format(self.image.get_flickr_url, self.skin_pixels_image.url)
         return '''
-        <div style="position:relative;">
-            <img height="200" src="{}" />
-            <img height="200" src="{}" style="position:absolute;left:0;top:0;"/>
-        </div>
-        '''.format(self.image.get_flickr_url, self.skin_pixels_image.url)
+            <div style="position:relative;">
+                <img height="200" src="{}" />
+            </div>
+        '''.format(self.image.get_flickr_url)
     preview_tag.short_description = _('Skin pixels comparison')
     preview_tag.allow_tags = True
 
@@ -148,8 +154,8 @@ class Annotation(models.Model):
 
 @receiver(post_delete, sender=Image)
 def clean_image_images(sender, instance, **kwargs):
-    if instance.image.image is not None:
-        instance.image.image.delete()
+    if instance.image is not None:
+        instance.image.delete()
 
 
 @receiver(post_delete, sender=Search)
@@ -161,5 +167,5 @@ def clean_search_images(sender, instance, **kwargs):
 
 @receiver(post_delete, sender=Annotation)
 def clean_annotation_images(sender, instance, **kwargs):
-    if instance.skin_pixels_image.image is not None:
-        instance.skin_pixels_image.image.delete()
+    if instance.skin_pixels_image:
+        instance.skin_pixels_image.delete()
