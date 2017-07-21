@@ -58,7 +58,6 @@ def make_search_query(request, flickr_page=0):
 
 
 def get_filtered_images(photos, cursor, perpage):
-    # we have new images
     filtered_images = []
     for image in photos:
         existing_in_search = Image.objects.filter(id=image.get('id')).count()
@@ -137,7 +136,7 @@ def flickr(request):
                 })
             else:
                 if flickr_page < flickr_pages:
-                    # Search for new batch
+
                     json = make_search_query(request, flickr_page=flickr_page + 1)
 
                     if json is None:
@@ -188,7 +187,6 @@ def flickr(request):
                     (discarded, created) = DiscardedImage.objects.get_or_create(id=image.get('id'), defaults=image)
             search.save()
 
-        # Search for new batch
         json = make_search_query(request)
 
         if json is None:
