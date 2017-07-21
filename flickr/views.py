@@ -82,17 +82,19 @@ def flickr(request):
     flickr_total = int(results['total'])
     photos_results = results['photo']
 
-    (search, created) = Search.objects.get_or_create(
-        tags=tags,
-        defaults={
-            'tag_mode': tag_mode,
-            'licenses': licenses,
-            'user_id': user_id,
-        }
-    )
-    search_serializer = SearchSerializer(search)
-
     if request.method == 'GET':
+
+        (search, created) = Search.objects.get_or_create(
+            tags=tags,
+            defaults={
+                'tag_mode': tag_mode,
+                'licenses': licenses,
+                'user_id': user_id,
+            }
+        )
+        search_serializer = SearchSerializer(search)
+        image_serializer = ImageSerializer(data=photos_results, many=True)
+
         # return if all added already
         if flickr_total == search.images.all() or flickr_total == 0:
             return Response({
@@ -104,45 +106,30 @@ def flickr(request):
             }, status=status.HTTP_404_NOT_FOUND)
         # we have new images
         else:
-            # import ipdb; ipdb.set_trace()
-            response_images = [{
-                'id': image['id'],
-                'title': image['title'],
-                'owner': image['owner'],
-                'secret': image['secret'],
-                'server': image['server'],
-                'farm': image['farm'],
-                'license': image['license'],
-                'tags': image['tags'],
-                'ispublic': image['ispublic'],
-                'isfriend': image['isfriend'],
-                'isfamily': image['isfamily'],
-                'state': {
-                    'value': 0,
-                    'label': _('Selected'),
-                }
-            } for image in photos_results
-                if not Image.objects.filter(id=image.get('id')).exists()
-                    and not DiscardedImage.objects.filter(id=image.get('id')).exists()
-            ][req_cursor:req_cursor + req_perpage]
 
-            response_image_ids = [img.get('id') for img in response_images]
+            filtered_images = []
+            if image_serializer.is_valid():
+                for image in image_serializer.data:
+                    if not Image.objects.filter(id=image.get('id')).exists() and \
+                        not DiscardedImage.objects.filter(id=image.get('id')).exists():
+                            filtered_images.append(image)
+            filtered_images = filtered_images[req_cursor:req_cursor + req_perpage]
+            filtered_image_ids = [img.get('id') for img in filtered_images]
 
-            if len(response_images) > 0:
+            if len(filtered_images) > 0:
 
-                already_selected_count = search.images.filter(id__in=response_image_ids).count()
+                already_selected_count = search.images.filter(id__in=filtered_image_ids).count()
 
                 return Response({
                     'total': flickr_total,
                     'left': max(flickr_total - already_selected_count - search.images.count(), 0),
                     'search': search_serializer.data,
-                    'images': response_images,
+                    'images': filtered_images,
                     'page': req_page,
                     'perpage': req_perpage,
                     'cursor': (req_page - 1) * req_perpage,
                 })
             else:
-                # import ipdb; ipdb.set_trace()
                 if flickr_page < flickr_pages:
                     return make_search_query(request, flickr_page=flickr_page + 1)
                 else:
@@ -164,13 +151,18 @@ def flickr(request):
         (search, created) = Search.objects.get_or_create(
             tags=request.data.get('tags'), defaults=request.data)
         search_serializer = SearchSerializer(search)
+        image_serializer = ImageSerializer(data=images_data, many=True)
 
-        for image_data in images_data:
-            (image, created) = Image.objects.get_or_create(id=image_data.get('id'), defaults=image_data)
-            # import ipdb; ipdb.set_trace()
-            if image not in search.images.all():
-                search.images.add(image)
-        search.save()
+        if image_serializer.is_valid():
+            for image in image_serializer.validated_data:
+                state = image.pop('state')
+                if state == 0:
+                    (selected, created) = Image.objects.get_or_create(id=image.get('id'), defaults=image)
+                    if selected not in search.images.all():
+                        search.images.add(selected)
+                elif state == 1:
+                    (discarded, created) = DiscardedImage.objects.get_or_create(id=image.get('id'), defaults=image)
+            search.save()
 
         # Search for new batch
         json = make_search_query(request)
@@ -184,8 +176,6 @@ def flickr(request):
         flickr_total = int(results['total'])
         photos_results = results['photo']
 
-        # query = make_search_query(request)
-        # import ipdb; ipdb.set_trace()
         return Response({
             'total': flickr_total,
             'left': max(flickr_total - search.images.count(), 0),
@@ -247,8 +237,6 @@ class ImageViewSet(viewsets.ModelViewSet):
 
     queryset = Image.objects.all()
     serializer_class = ImageSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
-    filter_fields = ('state', 'license')
     pagination_class = LargeResultsSetPagination
 
 
@@ -257,13 +245,3 @@ class AnnotationViewSet(viewsets.ModelViewSet):
     queryset = Annotation.objects.all()
     serializer_class = AnnotationSerializer
     pagination_class = StandardResultsSetPagination
-
-
-class LicenseView(views.APIView):
-
-    def get(self, request, format=None):
-        return Response([{
-            'id': license[0],
-            'name': license[1],
-        } for license in LICENSES])
-
