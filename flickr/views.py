@@ -57,6 +57,17 @@ def make_search_query(request, flickr_page=0):
     return None
 
 
+def get_filtered_images(photos, cursor, perpage):
+    # we have new images
+    filtered_images = []
+    for image in photos:
+        existing_in_search = Image.objects.filter(id=image.get('id')).count()
+        existing_discarded = DiscardedImage.objects.filter(id=image.get('id')).count()
+        if existing_in_search + existing_discarded == 0:
+            filtered_images.append(image)
+    return filtered_images[cursor:cursor + perpage]
+
+
 @api_view(['GET', 'POST', 'PUT'])
 def flickr(request):
 
@@ -71,17 +82,6 @@ def flickr(request):
     licenses = req_data.get('licenses')
     user_id = req_data.get('user_id')
 
-    json = make_search_query(request)
-
-    if json is None:
-        return Response({'message': _('An error occured parsing response data.')})
-
-    results = json['photos']
-    flickr_pages = int(results['pages'])
-    flickr_page = int(results['page'])
-    flickr_total = int(results['total'])
-    photos_results = results['photo']
-
     if request.method == 'GET':
 
         (search, created) = Search.objects.get_or_create(
@@ -92,11 +92,23 @@ def flickr(request):
                 'user_id': user_id,
             }
         )
+        json = make_search_query(request)
+
+        if json is None:
+            return Response({'message': _('An error occured parsing response data.')})
+
+        results = json['photos']
+        flickr_pages = int(results['pages'])
+        flickr_page = int(results['page'])
+        flickr_total = int(results['total'])
+        photos_results = results['photo']
+
         search_serializer = SearchSerializer(search)
         image_serializer = ImageSerializer(data=photos_results, many=True)
 
-        # return if all added already
         if flickr_total == search.images.all() or flickr_total == 0:
+
+            # check if all is already added
             return Response({
                 'total': 0,
                 'search': search_serializer.data,
@@ -104,21 +116,15 @@ def flickr(request):
                 'page': req_page,
                 'perpage': req_perpage,
             }, status=status.HTTP_404_NOT_FOUND)
-        # we have new images
+
         else:
 
-            filtered_images = []
-            if image_serializer.is_valid():
-                for image in image_serializer.data:
-                    if not Image.objects.filter(id=image.get('id')).exists() and \
-                        not DiscardedImage.objects.filter(id=image.get('id')).exists():
-                            filtered_images.append(image)
-            filtered_images = filtered_images[req_cursor:req_cursor + req_perpage]
-            filtered_image_ids = [img.get('id') for img in filtered_images]
+            filtered_images = get_filtered_images(photos_results, req_cursor, req_perpage)
+            photos_result_ids = [p.get('id') for p in photos_results]
 
-            if len(filtered_images) > 0:
+            if len(photos_results) > 0:
 
-                already_selected_count = search.images.filter(id__in=filtered_image_ids).count()
+                already_selected_count = search.images.filter(id__in=photos_result_ids).count()
 
                 return Response({
                     'total': flickr_total,
@@ -131,7 +137,25 @@ def flickr(request):
                 })
             else:
                 if flickr_page < flickr_pages:
-                    return make_search_query(request, flickr_page=flickr_page + 1)
+                    # Search for new batch
+                    json = make_search_query(request, flickr_page=flickr_page + 1)
+
+                    if json is None:
+                        return Response({'message': _('An error occured parsing response data.')})
+                    results = json['photos']
+                    flickr_pages = int(results['pages'])
+                    flickr_page = int(results['page'])
+                    flickr_total = int(results['total'])
+                    photos_results = results['photo']
+                    return Response({
+                        'total': flickr_total,
+                        'left': max(flickr_total - search.images.count(), 0),
+                        'search': search_serializer.data,
+                        'images': [],
+                        'page': req_page,
+                        'perpage': req_perpage,
+                        'cursor': (req_page - 1) * req_perpage,
+                    })
                 else:
                     return Response({
                         'total': flickr_total,
@@ -174,13 +198,13 @@ def flickr(request):
         flickr_pages = int(results['pages'])
         flickr_page = int(results['page'])
         flickr_total = int(results['total'])
-        photos_results = results['photo']
+        filtered_images = get_filtered_images(results['photo'], req_cursor, req_perpage)
 
         return Response({
             'total': flickr_total,
             'left': max(flickr_total - search.images.count(), 0),
             'search': search_serializer.data,
-            'images': [],
+            'images': filtered_images,
             'page': req_page,
             'perpage': req_perpage,
             'cursor': (req_page - 1) * req_perpage,
@@ -204,11 +228,6 @@ class StandardResultsSetPagination(PageNumberPagination):
 class SearchQueryView(views.APIView):
 
     def post(self, request, format=None):
-        # search, created = Search.objects.get_or_create(tags=request.data['tags'])
-        # if created:
-        #     pass
-        # else:
-        #     pass
         serializer = SearchSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
