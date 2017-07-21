@@ -128,8 +128,8 @@ class Annotation(models.Model):
     def preview_tag(self):
         if self.skin_pixels_image:
             return '''
-                <div style="position:relative;">
-                    <img height="200" src="{}" />
+                <div style="position:relative;height:200px;">
+                    <!-- <img height="200" src="{}" /> -->
                     <img height="200" src="{}" style="position:absolute;left:0;top:0;"/>
                 </div>
             '''.format(self.image.get_flickr_url, self.skin_pixels_image.url)
