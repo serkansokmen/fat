@@ -155,17 +155,17 @@ class Annotation(models.Model):
 @receiver(post_delete, sender=Image)
 def clean_image_images(sender, instance, **kwargs):
     if instance.image is not None:
-        instance.image.delete()
+        instance.image.delete(False)
 
 
 @receiver(post_delete, sender=Search)
 def clean_search_images(sender, instance, **kwargs):
     for image in Image.objects.all():
         if image.search.count() == 0:
-            image.delete()
+            image.delete(False)
 
 
 @receiver(post_delete, sender=Annotation)
 def clean_annotation_images(sender, instance, **kwargs):
     if instance.skin_pixels_image:
-        instance.skin_pixels_image.delete()
+        instance.skin_pixels_image.delete(False)
