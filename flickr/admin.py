@@ -10,12 +10,6 @@ from sorl.thumbnail.admin import AdminImageMixin
 from .models import Search, Image, DiscardedImage, Annotation
 
 
-def download_selected_images(modeladmin, request, queryset):
-    for image in Image.objects.all():
-        if not image.image:
-            image.download_image()
-
-
 @admin.register(DiscardedImage)
 class DiscardedImageAdmin(AdminImageMixin, admin.ModelAdmin):
     list_display = ('image_tag', 'id', 'secret', 'license', 'tags')
@@ -29,15 +23,7 @@ class ImageAdmin(AdminImageMixin, admin.ModelAdmin):
     list_display_links = ('image_tag', 'id')
     list_filter = ('search', 'license',
         'ispublic', 'isfriend', 'isfamily')
-    readonly_fields = ('image_tag', 'ispublic', 'isfriend', 'isfamily', 'image')
-    actions = [
-        download_selected_images,
-    ]
-
-    def save_model(self, request, obj, form, change):
-        if obj.image is None:
-            obj.download_image()
-        obj.save()
+    readonly_fields = ('image_tag', 'ispublic', 'isfriend', 'isfamily',)
 
 
 @admin.register(Search)
@@ -54,17 +40,10 @@ class SearchAdmin(admin.ModelAdmin):
         return obj.images.count()
     image_count.short_description = _('Image count')
 
-    # def annotation_count(self, obj):
-    #     count = 0
-    #     for image in obj.images.all():
-    #         count = count + image.annotation_set.count()
-    #     return count
-    # annotation_count.short_description = _('Annotation count')
-
 
 @admin.register(Annotation)
 class AnnotationAdmin(AdminImageMixin, admin.ModelAdmin):
     list_display = ('preview_tag',)
     list_display_links = ('preview_tag',)
-    # list_filter = ('image',)
+
 

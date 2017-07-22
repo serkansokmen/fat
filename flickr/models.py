@@ -55,14 +55,14 @@ class FlickrImage(models.Model):
     image_tag.short_description = _('Original image')
     image_tag.allow_tags = True
 
-    def download_image(self):
-        if not self.image:
-            img_id = self.id
-            img_url = self.get_flickr_url()
-            img_temp = NamedTemporaryFile(delete=True)
-            img_temp.write(urlopen(img_url).read())
-            img_temp.flush()
-            self.image.save(img_id + '.jpg', File(img_temp))
+    # def download_image(self):
+    #     if not self.image:
+    #         img_id = self.id
+    #         img_url = self.get_flickr_url()
+    #         img_temp = NamedTemporaryFile(delete=True)
+    #         img_temp.write(urlopen(img_url).read())
+    #         img_temp.flush()
+    #         self.image.save(img_id + '.jpg', File(img_temp))
 
 
 class DiscardedImage(FlickrImage):
@@ -73,8 +73,6 @@ class DiscardedImage(FlickrImage):
 
 
 class Image(FlickrImage):
-
-    image = ImageField(_('Locally saved image'), upload_to='flickr_images', blank=True, null=True)
 
     class Meta:
         verbose_name = _('Selected image')
@@ -123,7 +121,7 @@ class Annotation(models.Model):
         ordering = ['-created_at', '-updated_at',]
 
     def __str__(self):
-        return '{}'.format(self.image.image)
+        return '{}'.format(self.image)
 
     def preview_tag(self):
         if self.skin_pixels_image:
@@ -152,17 +150,11 @@ class Annotation(models.Model):
     skin_pixels_image_tag.allow_tags = True
 
 
-@receiver(post_delete, sender=Image)
-def clean_image_images(sender, instance, **kwargs):
-    if instance.image is not None:
-        instance.image.delete(False)
-
-
 @receiver(post_delete, sender=Search)
 def clean_search_images(sender, instance, **kwargs):
     for image in Image.objects.all():
         if image.search.count() == 0:
-            image.delete(False)
+            image.delete()
 
 
 @receiver(post_delete, sender=Annotation)

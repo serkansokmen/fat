@@ -21,10 +21,10 @@ class ImageSerializer(serializers.ModelSerializer):
         fields = ('id', 'secret', 'title',
             'owner', 'secret', 'server', 'farm',
             'license', 'tags',
-            'image', 'flickr_thumbnail', 'flickr_url', 'license',
+            'flickr_thumbnail', 'flickr_url', 'license',
             'ispublic', 'isfriend', 'isfamily',
             'state')
-        read_only_fields = ('image', 'flickr_thumbnail', 'flickr_url')
+        read_only_fields = ('flickr_thumbnail', 'flickr_url')
 
 
 class SearchSerializer(serializers.ModelSerializer):
