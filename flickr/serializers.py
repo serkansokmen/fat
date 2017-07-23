@@ -67,9 +67,13 @@ class SearchSerializer(serializers.ModelSerializer):
 
 class AnnotationSerializer(serializers.ModelSerializer):
 
-    skin_pixels_image = Base64ImageField(required=True)
+    paint_image = Base64ImageField(required=True)
+    image_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Annotation
         queryset = Annotation.objects.all()
-        fields = ('id', 'image', 'skin_pixels_image')
+        fields = ('id', 'image', 'paint_image', 'image_url')
+
+    def get_image_url(self, obj):
+        return obj.image.get_flickr_url

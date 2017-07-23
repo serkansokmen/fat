@@ -57,23 +57,23 @@ class AnnotationAdmin(AdminImageMixin, admin.ModelAdmin):
     list_display_links = ('preview_tag',)
 
     def preview_tag(self, obj):
-        if obj.skin_pixels_image:
+        if obj.paint_image:
             return '''
                 <div style="position:relative;height:200px;">
                     <img height="200" src="{}" />
                     <img height="200" src="{}" style="position:absolute;left:0;top:0;"/>
                 </div>
-            '''.format(obj.image.get_flickr_url, obj.skin_pixels_image.url)
+            '''.format(obj.image.get_flickr_url, obj.paint_image.url)
         return '''
             <div style="position:relative;">
                 <img height="200" src="{}" />
             </div>
         '''.format(obj.image.get_flickr_url)
-    preview_tag.short_description = _('Skin pixels comparison')
+    preview_tag.short_description = _('Composite')
     preview_tag.allow_tags = True
 
 
-    def skin_pixels_image_tag(self, obj):
-        return '<img height="200" src="{}" />'.format(obj.skin_pixels_image.url)
-    skin_pixels_image_tag.short_description = _('Skin pixels')
-    skin_pixels_image_tag.allow_tags = True
+    def paint_image_tag(self, obj):
+        return '<img height="200" src="{}" />'.format(obj.paint_image.url)
+    paint_image_tag.short_description = _('Paint image')
+    paint_image_tag.allow_tags = True

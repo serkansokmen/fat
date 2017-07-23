@@ -104,7 +104,7 @@ class Search(models.Model):
 class Annotation(models.Model):
 
     image = models.ForeignKey(Image)
-    skin_pixels_image = ImageField(upload_to='skin_pixel_images')
+    paint_image = ImageField(upload_to='paint_image')
 
     created_at = models.DateTimeField(auto_now=False, auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, auto_now_add=False)
@@ -128,5 +128,5 @@ def clean_search_images(sender, instance, **kwargs):
 
 @receiver(post_delete, sender=Annotation)
 def clean_annotation_images(sender, instance, **kwargs):
-    if instance.skin_pixels_image:
-        instance.skin_pixels_image.delete(False)
+    if instance.paint_image:
+        instance.paint_image.delete(False)
