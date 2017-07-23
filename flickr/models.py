@@ -110,6 +110,9 @@ class SemanticCheck(models.Model):
         verbose_name_plural = _('Semantic checks')
         ordering = ['label']
 
+    def __str__(self):
+        return '{}'.format(self.label)
+
 
 class Annotation(models.Model):
 

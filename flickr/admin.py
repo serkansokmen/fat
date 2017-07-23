@@ -53,6 +53,7 @@ class SearchAdmin(admin.ModelAdmin):
 
 class AnnotationSemanticCheckInline(admin.TabularInline):
     model = Annotation.semantic_check_values.through
+    extra = 0
 
 
 @admin.register(Annotation)

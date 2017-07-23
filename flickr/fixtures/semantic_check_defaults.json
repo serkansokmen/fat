@@ -1,0 +1,40 @@
+[{
+  "model": "flickr.semanticcheck",
+  "pk": 1,
+  "fields":
+  {
+    "label": "Beach"
+  }
+},
+{
+  "model": "flickr.semanticcheck",
+  "pk": 2,
+  "fields":
+  {
+    "label": "Pornographic"
+  }
+},
+{
+  "model": "flickr.semanticcheck",
+  "pk": 3,
+  "fields":
+  {
+    "label": "Nude"
+  }
+},
+{
+  "model": "flickr.semanticcheck",
+  "pk": 4,
+  "fields":
+  {
+    "label": "Class 4"
+  }
+},
+{
+  "model": "flickr.semanticcheck",
+  "pk": 5,
+  "fields":
+  {
+    "label": "Class 5"
+  }
+}]
