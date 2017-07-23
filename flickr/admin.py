@@ -7,7 +7,7 @@ from django.template.loader import render_to_string
 from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 from sorl.thumbnail.admin import AdminImageMixin
-from .models import Search, Image, DiscardedImage, Annotation, AnnotationSemanticCheck
+from .models import Search, Image, DiscardedImage, Annotation, SemanticCheck, AnnotationSemanticCheck
 
 
 @admin.register(DiscardedImage)
@@ -84,5 +84,6 @@ class AnnotationAdmin(AdminImageMixin, admin.ModelAdmin):
     paint_image_tag.allow_tags = True
 
 
-# class SemanticCheckAdmin(admin.ModelAdmin):
-#     list_display = ('label', 'value')
+@admin.register(SemanticCheck)
+class SemanticCheckAdmin(admin.ModelAdmin):
+    list_display = ('label',)

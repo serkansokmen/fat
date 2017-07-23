@@ -104,11 +104,10 @@ class Search(models.Model):
 class SemanticCheck(models.Model):
 
     label = models.CharField(max_length=255)
-    value = models.FloatField(default=1.0)
 
     class Meta:
-        verbose_name = _('Semantic check value')
-        verbose_name_plural = _('Semantic check values')
+        verbose_name = _('Semantic check')
+        verbose_name_plural = _('Semantic checks')
         ordering = ['label']
 
 
