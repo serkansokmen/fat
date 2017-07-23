@@ -7,7 +7,7 @@ from django.template.loader import render_to_string
 from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 from sorl.thumbnail.admin import AdminImageMixin
-from .models import Search, Image, DiscardedImage, Annotation
+from .models import Search, Image, DiscardedImage, Annotation, AnnotationSemanticCheck
 
 
 @admin.register(DiscardedImage)
@@ -51,10 +51,15 @@ class SearchAdmin(admin.ModelAdmin):
     image_count.short_description = _('Image count')
 
 
+class AnnotationSemanticCheckInline(admin.TabularInline):
+    model = Annotation.semantic_check_values.through
+
+
 @admin.register(Annotation)
 class AnnotationAdmin(AdminImageMixin, admin.ModelAdmin):
     list_display = ('preview_tag',)
     list_display_links = ('preview_tag',)
+    inlines = [AnnotationSemanticCheckInline]
 
     def preview_tag(self, obj):
         if obj.paint_image:
@@ -77,3 +82,7 @@ class AnnotationAdmin(AdminImageMixin, admin.ModelAdmin):
         return '<img height="200" src="{}" />'.format(obj.paint_image.url)
     paint_image_tag.short_description = _('Paint image')
     paint_image_tag.allow_tags = True
+
+
+# class SemanticCheckAdmin(admin.ModelAdmin):
+#     list_display = ('label', 'value')
