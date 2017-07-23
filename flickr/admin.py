@@ -16,6 +16,11 @@ class DiscardedImageAdmin(AdminImageMixin, admin.ModelAdmin):
     list_display_links = ('image_tag', 'id')
     readonly_fields = ('image_tag', 'ispublic', 'isfriend', 'isfamily')
 
+    def image_tag(self, obj):
+        return '<img height="200" src="{}" />'.format(obj.get_flickr_url)
+    image_tag.short_description = _('Original image')
+    image_tag.allow_tags = True
+
 
 @admin.register(Image)
 class ImageAdmin(AdminImageMixin, admin.ModelAdmin):
@@ -24,6 +29,11 @@ class ImageAdmin(AdminImageMixin, admin.ModelAdmin):
     list_filter = ('search', 'license',
         'ispublic', 'isfriend', 'isfamily')
     readonly_fields = ('image_tag', 'ispublic', 'isfriend', 'isfamily',)
+
+    def image_tag(self, obj):
+        return '<img src="{}" height="200" />'.format(obj.get_flickr_url)
+    image_tag.short_description = _('Original image')
+    image_tag.allow_tags = True
 
 
 @admin.register(Search)
@@ -46,4 +56,24 @@ class AnnotationAdmin(AdminImageMixin, admin.ModelAdmin):
     list_display = ('preview_tag',)
     list_display_links = ('preview_tag',)
 
+    def preview_tag(self, obj):
+        if obj.skin_pixels_image:
+            return '''
+                <div style="position:relative;height:200px;">
+                    <img height="200" src="{}" />
+                    <img height="200" src="{}" style="position:absolute;left:0;top:0;"/>
+                </div>
+            '''.format(obj.image.get_flickr_url, obj.skin_pixels_image.url)
+        return '''
+            <div style="position:relative;">
+                <img height="200" src="{}" />
+            </div>
+        '''.format(obj.image.get_flickr_url)
+    preview_tag.short_description = _('Skin pixels comparison')
+    preview_tag.allow_tags = True
 
+
+    def skin_pixels_image_tag(self, obj):
+        return '<img height="200" src="{}" />'.format(obj.skin_pixels_image.url)
+    skin_pixels_image_tag.short_description = _('Skin pixels')
+    skin_pixels_image_tag.allow_tags = True

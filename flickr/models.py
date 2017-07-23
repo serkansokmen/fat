@@ -50,11 +50,6 @@ class FlickrImage(models.Model):
     def get_flickr_thumbnail(self):
         return '{}_q.jpg'.format(self.get_flickr_image_base())
 
-    def image_tag(self):
-        return '<img src="{}" height="200" />'.format(self.get_flickr_url)
-    image_tag.short_description = _('Original image')
-    image_tag.allow_tags = True
-
     # def download_image(self):
     #     if not self.image:
     #         img_id = self.id
@@ -122,32 +117,6 @@ class Annotation(models.Model):
 
     def __str__(self):
         return '{}'.format(self.image)
-
-    def preview_tag(self):
-        if self.skin_pixels_image:
-            return '''
-                <div style="position:relative;height:200px;">
-                    <!-- <img height="200" src="{}" /> -->
-                    <img height="200" src="{}" style="position:absolute;left:0;top:0;"/>
-                </div>
-            '''.format(self.image.get_flickr_url, self.skin_pixels_image.url)
-        return '''
-            <div style="position:relative;">
-                <img height="200" src="{}" />
-            </div>
-        '''.format(self.image.get_flickr_url)
-    preview_tag.short_description = _('Skin pixels comparison')
-    preview_tag.allow_tags = True
-
-    def image_tag(self):
-        return '<img height="200" src="{}" />'.format(self.image.get_flickr_url)
-    image_tag.short_description = _('Original image')
-    image_tag.allow_tags = True
-
-    def skin_pixels_image_tag(self):
-        return '<img height="200" src="{}" />'.format(self.skin_pixels_image.url)
-    skin_pixels_image_tag.short_description = _('Skin pixels')
-    skin_pixels_image_tag.allow_tags = True
 
 
 @receiver(post_delete, sender=Search)
