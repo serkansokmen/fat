@@ -15,6 +15,7 @@ router = routers.DefaultRouter()
 router.register(r'search', flickr_api.SearchViewSet)
 router.register(r'images', flickr_api.ImageViewSet)
 router.register(r'annotations', flickr_api.AnnotationViewSet)
+router.register(r'semantic-check-types', flickr_api.SemanticCheckViewSet)
 
 urlpatterns = [
     url(r'^api/v1/', include(router.urls)),

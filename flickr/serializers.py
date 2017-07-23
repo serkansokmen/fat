@@ -3,7 +3,7 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers, permissions, response
 from drf_extra_fields.fields import Base64ImageField
-from .models import Search, Image, DiscardedImage, Annotation
+from .models import Search, Image, DiscardedImage, Annotation, SemanticCheck, AnnotationSemanticCheck
 
 
 class ImageSerializer(serializers.ModelSerializer):
@@ -65,15 +65,29 @@ class SearchSerializer(serializers.ModelSerializer):
         return instance
 
 
+class SemanticCheckSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SemanticCheck
+        fields = ('id', 'label')
+
+
+class AnnotationSemanticCheckSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = AnnotationSemanticCheck
+
+
 class AnnotationSerializer(serializers.ModelSerializer):
 
     paint_image = Base64ImageField(required=True)
     image_url = serializers.SerializerMethodField()
+    semantic_checks = SemanticCheckSerializer(many=True, read_only=True)
 
     class Meta:
         model = Annotation
         queryset = Annotation.objects.all()
-        fields = ('id', 'image', 'paint_image', 'image_url')
+        fields = ('id', 'image', 'paint_image', 'semantic_checks', 'semantic_check_values', 'image_url')
 
     def get_image_url(self, obj):
         return obj.image.get_flickr_url

@@ -13,8 +13,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
-from .models import Search, Image, DiscardedImage, Annotation
-from .serializers import SearchSerializer, ImageSerializer, AnnotationSerializer
+from .models import Search, Image, DiscardedImage, Annotation, SemanticCheck
+from .serializers import SearchSerializer, ImageSerializer, AnnotationSerializer, SemanticCheckSerializer
 
 
 def make_search_query(request, flickr_page=0):
@@ -262,3 +262,9 @@ class AnnotationViewSet(viewsets.ModelViewSet):
     queryset = Annotation.objects.all()
     serializer_class = AnnotationSerializer
     pagination_class = StandardResultsSetPagination
+
+
+class SemanticCheckViewSet(viewsets.ModelViewSet):
+
+    queryset = SemanticCheck.objects.all()
+    serializer_class = SemanticCheckSerializer
