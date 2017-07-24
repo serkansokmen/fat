@@ -14,7 +14,6 @@ class ImageSerializer(serializers.ModelSerializer):
     state = serializers.ChoiceField(choices=STATES, default=0)
     flickr_url = serializers.ReadOnlyField(source='get_flickr_url')
     flickr_thumbnail = serializers.ReadOnlyField(source='get_flickr_thumbnail')
-    permission_classes = (permissions.DjangoModelPermissions,)
 
     class Meta:
         model = Image
@@ -33,7 +32,6 @@ class SearchSerializer(serializers.ModelSerializer):
     licenses = serializers.MultipleChoiceField(choices=settings.FLICKR_LICENSES, allow_blank=True)
     tag_mode = serializers.ChoiceField(choices=Search.TAG_MODES, allow_blank=False, default=Search.TAG_MODES[0])
     images = ImageSerializer(many=True)
-    permission_classes = (permissions.DjangoModelPermissions,)
 
     class Meta:
         model = Search
@@ -68,14 +66,12 @@ class SearchSerializer(serializers.ModelSerializer):
 
 
 class SemanticCheckSerializer(serializers.ModelSerializer):
-    permission_classes = (permissions.DjangoModelPermissions,)
     class Meta:
         model = SemanticCheck
         fields = ('id', 'label')
 
 
 class AnnotationSemanticCheckSerializer(serializers.ModelSerializer):
-    permission_classes = (permissions.DjangoModelPermissions,)
     class Meta:
         model = AnnotationSemanticCheck
         fields = ('annotation', 'semantic_check', 'value')
@@ -83,7 +79,6 @@ class AnnotationSemanticCheckSerializer(serializers.ModelSerializer):
 
 class AnnotationSerializer(serializers.ModelSerializer):
 
-    permission_classes = (permissions.DjangoModelPermissions,)
     paint_image = Base64ImageField(required=True)
     image_url = serializers.SerializerMethodField()
 
