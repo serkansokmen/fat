@@ -8,13 +8,14 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.http import JsonResponse
 from django_filters import rest_framework as filters
-from rest_framework import viewsets, parsers, views
+from rest_framework import viewsets, parsers, views, mixins, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.decorators import list_route, detail_route
 from rest_framework import status
-from .models import Search, Image, DiscardedImage, Annotation, SemanticCheck
-from .serializers import SearchSerializer, ImageSerializer, AnnotationSerializer, SemanticCheckSerializer
+from .models import Search, Image, DiscardedImage, Annotation, SemanticCheck, AnnotationSemanticCheck
+from .serializers import SearchSerializer, ImageSerializer, AnnotationSerializer, SemanticCheckSerializer, AnnotationSemanticCheckSerializer
 
 
 def make_search_query(request, flickr_page=0):
@@ -268,3 +269,51 @@ class SemanticCheckViewSet(viewsets.ModelViewSet):
 
     queryset = SemanticCheck.objects.all()
     serializer_class = SemanticCheckSerializer
+
+
+class AnnotationSemanticCheckViewSet(viewsets.ModelViewSet):
+
+    queryset = AnnotationSemanticCheck.objects.all()
+    serializer_class = AnnotationSemanticCheckSerializer
+
+
+# class AnnotationSemanticCheckViewSet(views.APIView):
+
+#     @detail_route(methods=['post'],
+#         permission_classes=[permissions.DjangoModelPermissionsOrAnonReadOnly],
+#         url_path='semantic-checks')
+#     def save_annotation_semantic_check_values(self, request, pk=None):
+#         semantic_check = SemanticCheck.objects.get(id=request.data.get('semantic_check'))
+#         value = request.data.get('value')
+#         (annotation_semantic_check, created) = AnnotationSemanticCheck.objects.get_or_create(
+#             annotation__id=pk, defaults={
+#             "semantic_check": semantic_check.id,
+#             "value": value
+#         })
+#         serializer = AnnotationSemanticCheckSerializer(annotation_semantic_check)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# semantic_checks = SemanticCheck.objects.all()
+# serializer = SemanticCheckSerializer(snippets, many=True)
+# return Response(serializer.data)
+
+# @api_view(['POST'])
+# def annotation_semantic_check(request):
+
+    # annotation = Annotation.objects.get(id=request.data.get('annotation'))
+    # semantic_check = SemanticCheck.objects.get(id=request.data.get('semantic_check'))
+    # value = request.data.get('value')
+
+#     (annotation_semantic_check, creates) = AnnotationSemanticCheck.objects.get_or_create(annotation=annotation, defaults={
+#         'annotation': annotation.id,
+#         'semantic_check': semantic_check.id,
+#         'value': value,
+#     })
+#     annotation_semantic_check_serializer = AnnotationSemanticCheckSerializer(annotation_semantic_check)
+
+#     return Response({
+#         'result': annotation_semantic_check_serializer.data
+#     })

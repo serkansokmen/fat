@@ -11,11 +11,12 @@ from flickr.views import flickr
 
 schema_view = get_schema_view(title='Flickr Search Tool API')
 
-router = routers.DefaultRouter()
+router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'search', flickr_api.SearchViewSet)
 router.register(r'images', flickr_api.ImageViewSet)
 router.register(r'annotations', flickr_api.AnnotationViewSet)
 router.register(r'semantic-check-types', flickr_api.SemanticCheckViewSet)
+router.register(r'semantic-checks', flickr_api.AnnotationSemanticCheckViewSet)
 
 urlpatterns = [
     url(r'^api/v1/', include(router.urls)),
