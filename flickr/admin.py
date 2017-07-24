@@ -17,7 +17,7 @@ class DiscardedImageAdmin(AdminImageMixin, admin.ModelAdmin):
     readonly_fields = ('image_tag', 'ispublic', 'isfriend', 'isfamily')
 
     def image_tag(self, obj):
-        return '<img height="200" src="{}" />'.format(obj.get_flickr_url)
+        return '<img height="100" src="{}" />'.format(obj.get_flickr_url)
     image_tag.short_description = _('Original image')
     image_tag.allow_tags = True
 
@@ -31,7 +31,7 @@ class ImageAdmin(AdminImageMixin, admin.ModelAdmin):
     readonly_fields = ('image_tag', 'ispublic', 'isfriend', 'isfamily',)
 
     def image_tag(self, obj):
-        return '<img src="{}" height="200" />'.format(obj.get_flickr_url)
+        return '<img src="{}" height="100" />'.format(obj.get_flickr_url)
     image_tag.short_description = _('Original image')
     image_tag.allow_tags = True
 
@@ -63,24 +63,18 @@ class AnnotationAdmin(AdminImageMixin, admin.ModelAdmin):
     inlines = [AnnotationSemanticCheckInline]
 
     def preview_tag(self, obj):
-        if obj.paint_image:
-            return '''
-                <div style="position:relative;height:200px;">
-                    <img height="200" src="{}" />
-                    <img height="200" src="{}" style="position:absolute;left:0;top:0;"/>
-                </div>
-            '''.format(obj.image.get_flickr_url, obj.paint_image.url)
         return '''
-            <div style="position:relative;">
-                <img height="200" src="{}" />
+            <div style="position:relative;height:100px;">
+                <img height="100" src="{}" />
+                <img height="100" src="{}" style="position:absolute;left:0;top:0;"/>
             </div>
-        '''.format(obj.image.get_flickr_url)
+        '''.format(obj.image.get_flickr_url, obj.paint_image.url)
     preview_tag.short_description = _('Composite')
     preview_tag.allow_tags = True
 
 
     def paint_image_tag(self, obj):
-        return '<img height="200" src="{}" />'.format(obj.paint_image.url)
+        return '<img height="100" src="{}" />'.format(obj.paint_image.url)
     paint_image_tag.short_description = _('Paint image')
     paint_image_tag.allow_tags = True
 
