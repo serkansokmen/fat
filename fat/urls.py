@@ -26,7 +26,7 @@ urlpatterns += [
     url(r'^admin/', admin.site.urls),
     url(r'^auth/', include('rest_auth.urls')),
     url(r'^api/v1/schema/$', schema_view),
-    url(r'^api/v1/flickr/', flickr, name='flickr'),
+    url(r'^api/v1/flickr', flickr, name='flickr'),
     url(r'^$', TemplateView.as_view(template_name='flickr/app.html')),
     url(r'^flickr/', include('flickr.urls')),
 ]
