@@ -138,6 +138,11 @@ class AnnotationSemanticCheck(models.Model):
     semantic_check = models.ForeignKey(SemanticCheck, on_delete=models.CASCADE)
     value = models.FloatField(default=1.0)
 
+    class Meta:
+        verbose_name = _('Annotation semantic check')
+        verbose_name_plural = _('Annotation semantic checks')
+        ordering = ['-value']
+
 
 
 @receiver(post_delete, sender=Search)
