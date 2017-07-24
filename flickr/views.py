@@ -269,12 +269,14 @@ class SemanticCheckViewSet(viewsets.ModelViewSet):
 
     queryset = SemanticCheck.objects.all()
     serializer_class = SemanticCheckSerializer
+    pagination_class = StandardResultsSetPagination
 
 
 class AnnotationSemanticCheckViewSet(viewsets.ModelViewSet):
 
     queryset = AnnotationSemanticCheck.objects.all()
     serializer_class = AnnotationSemanticCheckSerializer
+    pagination_class = StandardResultsSetPagination
 
 
 # class AnnotationSemanticCheckViewSet(views.APIView):
