@@ -5,6 +5,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.db.models import Count
 from django.utils.translation import ugettext_lazy as _
 from django.http import JsonResponse
 from django_filters import rest_framework as filters
@@ -256,6 +257,9 @@ class ImageViewSet(viewsets.ModelViewSet):
     queryset = Image.objects.all()
     serializer_class = ImageSerializer
     pagination_class = LargeResultsSetPagination
+
+    def get_queryset(self):
+        return Image.objects.filter(annotation__exact=None)
 
 
 class AnnotationViewSet(viewsets.ModelViewSet):
