@@ -259,7 +259,9 @@ class ImageViewSet(viewsets.ModelViewSet):
     pagination_class = LargeResultsSetPagination
 
     def get_queryset(self):
-        return Image.objects.filter(annotation__exact=None)
+        if 'annotated_only' in self.request.query_params:
+            return Image.objects.filter(annotation__exact=None)
+        return Image.objects.all()
 
 
 class AnnotationViewSet(viewsets.ModelViewSet):
