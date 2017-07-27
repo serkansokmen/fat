@@ -52,7 +52,7 @@ class SearchAdmin(admin.ModelAdmin):
 
 
 class AnnotationSemanticCheckInline(admin.TabularInline):
-    model = Annotation.semantic_check_values.through
+    model = Annotation.semantic_checks.through
     extra = 0
 
 

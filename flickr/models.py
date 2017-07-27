@@ -50,15 +50,6 @@ class FlickrImage(models.Model):
     def get_flickr_thumbnail(self):
         return '{}_q.jpg'.format(self.get_flickr_image_base())
 
-    # def download_image(self):
-    #     if not self.image:
-    #         img_id = self.id
-    #         img_url = self.get_flickr_url()
-    #         img_temp = NamedTemporaryFile(delete=True)
-    #         img_temp.write(urlopen(img_url).read())
-    #         img_temp.flush()
-    #         self.image.save(img_id + '.jpg', File(img_temp))
-
 
 class DiscardedImage(FlickrImage):
 
@@ -108,7 +99,7 @@ class SemanticCheck(models.Model):
     class Meta:
         verbose_name = _('Semantic check')
         verbose_name_plural = _('Semantic checks')
-        ordering = ['label']
+        ordering = ['id']
 
     def __str__(self):
         return '{}'.format(self.label)
@@ -118,7 +109,7 @@ class Annotation(models.Model):
 
     image = models.ForeignKey(Image)
     paint_image = ImageField(upload_to='paint_image')
-    semantic_check_values = models.ManyToManyField(SemanticCheck, through='AnnotationSemanticCheck')
+    semantic_checks = models.ManyToManyField(SemanticCheck, through='AnnotationSemanticCheck')
 
     created_at = models.DateTimeField(auto_now=False, auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, auto_now_add=False)
@@ -136,7 +127,7 @@ class Annotation(models.Model):
 class AnnotationSemanticCheck(models.Model):
     annotation = models.ForeignKey(Annotation, on_delete=models.CASCADE)
     semantic_check = models.ForeignKey(SemanticCheck, on_delete=models.CASCADE)
-    value = models.FloatField(default=1.0)
+    value = models.FloatField(default=0.0)
 
     class Meta:
         verbose_name = _('Annotation semantic check')

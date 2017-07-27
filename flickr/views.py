@@ -290,7 +290,7 @@ class AnnotationSemanticCheckViewSet(viewsets.ModelViewSet):
 #     @detail_route(methods=['post'],
 #         permission_classes=[permissions.DjangoModelPermissionsOrAnonReadOnly],
 #         url_path='semantic-checks')
-#     def save_annotation_semantic_check_values(self, request, pk=None):
+#     def save_annotation_semantic_checks(self, request, pk=None):
 #         semantic_check = SemanticCheck.objects.get(id=request.data.get('semantic_check'))
 #         value = request.data.get('value')
 #         (annotation_semantic_check, created) = AnnotationSemanticCheck.objects.get_or_create(
