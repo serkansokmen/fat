@@ -133,6 +133,10 @@ class AnnotationSemanticCheck(models.Model):
         verbose_name = _('Annotation semantic check')
         verbose_name_plural = _('Annotation semantic checks')
         ordering = ['-value']
+        unique_together = ('annotation', 'semantic_check')
+
+    def __str__(self):
+        return '{}::{}: {}'.format(self.annotation, self.semantic_check.label, self.value)
 
 
 

@@ -66,6 +66,7 @@ class SearchSerializer(serializers.ModelSerializer):
 
 
 class SemanticCheckSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = SemanticCheck
         exclude = []
@@ -75,14 +76,14 @@ class AnnotationSemanticCheckSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AnnotationSemanticCheck
-        fields = ('annotation', 'semantic_check', 'value')
+        exclude = []
 
 
 class AnnotationSerializer(serializers.ModelSerializer):
 
     paint_image = Base64ImageField(required=False)
     image_url = serializers.SerializerMethodField(required=False)
-    semantic_checks = AnnotationSemanticCheckSerializer(many=True, required=False)
+    # semantic_checks = AnnotationSemanticCheckSerializer(many=True, read_only=True)
 
     class Meta:
         model = Annotation
@@ -92,22 +93,14 @@ class AnnotationSerializer(serializers.ModelSerializer):
     def get_image_url(self, obj):
         return obj.image.get_flickr_url
 
-    def create(self, validated_data):
-        semantic_checks_data = validated_data.pop('semantic_checks')
-        annotation = Annotation.objects.create(**validated_data)
-        if semantic_checks_data is not None:
-            for semantic_check in semantic_checks_data:
-                AnnotationSemanticCheck.objects.create(
-                    annotation=annotation,
-                    defaults={
-                        'semantic_check': semantic_check.get('id'),
-                        'value': 0.0,
-                    })
-        return annotation
+    # def create(self, validated_data):
+    #     semantic_checks_data = validated_data.pop('semantic_checks')
+    #     annotation = Annotation.objects.create(**validated_data)
+    #     return annotation
 
-    def update(self, instance, validated_data):
-        semantic_checks = validated_data.get('semantic_checks')
-        for semantic_check_data in semantic_checks:
-            (annotation_semantic_check, created) = AnnotationSemanticCheck.objects.get_or_create(
-                annotation=instance, defaults=semantic_check_data)
-        return instance
+    # def update(self, instance, validated_data):
+    #     semantic_checks = validated_data.get('semantic_checks')
+    #     for semantic_check_data in semantic_checks:
+    #         AnnotationSemanticCheck.objects.get_or_create(
+    #             annotation=instance, defaults=semantic_check_data)
+    #     return instance

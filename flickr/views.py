@@ -3,7 +3,7 @@ import json
 from django.conf import settings
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.db.models import Count
 from django.utils.translation import ugettext_lazy as _
@@ -269,6 +269,34 @@ class AnnotationViewSet(viewsets.ModelViewSet):
     queryset = Annotation.objects.all()
     serializer_class = AnnotationSerializer
     pagination_class = StandardResultsSetPagination
+
+    def retrieve(self, request, pk=None):
+        annotation = get_object_or_404(self.queryset, pk=pk)
+        serializer = self.get_serializer(annotation)
+        return Response(serializer.data)
+
+    # def create(self, request):
+    #     image_id = get_object_or_404(Image, pk=request.data.get('image'))
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.image_id = image_id
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         # annotation = Annotation.objects.create(**serializer.data)
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #     return Response(serializer.errors)
+
+    def partial_update(self, request, pk=None):
+        if pk is not None:
+            semantic_checks = request.data.get('semantic_checks')
+            annotation = Annotation.objects.get(pk=pk)
+            annotation_serializer = AnnotationSerializer(annotation)
+            AnnotationSemanticCheck.objects.filter(annotation=annotation).delete()
+            annotation_semantic_check_serializer = AnnotationSemanticCheckSerializer(
+                data=semantic_checks, many=True)
+            if annotation_semantic_check_serializer.is_valid():
+                annotation_semantic_check_serializer.save()
+
+            return Response(annotation_serializer.data)
 
 
 class SemanticCheckViewSet(viewsets.ModelViewSet):
