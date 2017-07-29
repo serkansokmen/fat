@@ -302,6 +302,7 @@ class AnnotationViewSet(viewsets.ModelViewSet):
             marked_objects = request.data.get('marked_objects')
             if marked_objects is not None:
                 # marked_objects_serializer = MarkedObjectSerializer(data=marked_objects, many=True)
+                annotation.marked_objects.all().delete()
                 for data in marked_objects:
                     marked_object = MarkedObject.objects.create(**data)
                     # import ipdb; ipdb.set_trace()

@@ -185,7 +185,7 @@ class MarkedObject(models.Model):
 
     def __str__(self):
         return '{}:: x: {}, y: {}, width: {}, height: {}'.format(
-            self.object_type, self.x, self.y, self.width, self.height)
+            self.OBJECT_TYPES[self.object_type][1], self.x, self.y, self.width, self.height)
 
 
 @receiver(post_delete, sender=Search)

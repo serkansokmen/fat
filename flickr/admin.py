@@ -69,6 +69,7 @@ class AnnotationSemanticCheckInline(admin.TabularInline):
 class AnnotationAdmin(AdminImageMixin, admin.ModelAdmin):
     list_display = ('preview_tag', 'semantic_check_count', 'marked_object_count')
     list_display_links = ('preview_tag',)
+    filter_horizontal = ('marked_objects',)
     inlines = [AnnotationSemanticCheckInline,]
 
     def preview_tag(self, obj):
