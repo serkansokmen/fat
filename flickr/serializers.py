@@ -3,7 +3,12 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers, permissions, response
 from drf_extra_fields.fields import Base64ImageField
-from .models import Search, Image, DiscardedImage, Annotation, SemanticCheck, AnnotationSemanticCheck
+from .models import (
+    Search, Image, DiscardedImage,
+    Annotation,
+    SemanticCheck, AnnotationSemanticCheck,
+    MarkedObject
+)
 
 
 class ImageSerializer(serializers.ModelSerializer):
@@ -79,28 +84,26 @@ class AnnotationSemanticCheckSerializer(serializers.ModelSerializer):
         exclude = []
 
 
+class MarkedObjectSerializer(serializers.ModelSerializer):
+
+    gender = serializers.ChoiceField(choices=MarkedObject.GENDERS, required=False)
+    age_group = serializers.ChoiceField(choices=MarkedObject.AGE_GROUPS, required=False)
+
+    class Meta:
+        model = MarkedObject
+        exclude = []
+
+
 class AnnotationSerializer(serializers.ModelSerializer):
 
     paint_image = Base64ImageField(required=False)
     image_url = serializers.SerializerMethodField(required=False)
-    # semantic_checks = AnnotationSemanticCheckSerializer(many=True, read_only=True)
+    marked_objects = MarkedObjectSerializer(many=True, required=False)
 
     class Meta:
         model = Annotation
         queryset = Annotation.objects.all()
-        fields = ('id', 'image', 'paint_image', 'image_url', 'semantic_checks')
+        fields = ('id', 'image', 'paint_image', 'image_url', 'semantic_checks', 'marked_objects')
 
     def get_image_url(self, obj):
         return obj.image.get_flickr_url
-
-    # def create(self, validated_data):
-    #     semantic_checks_data = validated_data.pop('semantic_checks')
-    #     annotation = Annotation.objects.create(**validated_data)
-    #     return annotation
-
-    # def update(self, instance, validated_data):
-    #     semantic_checks = validated_data.get('semantic_checks')
-    #     for semantic_check_data in semantic_checks:
-    #         AnnotationSemanticCheck.objects.get_or_create(
-    #             annotation=instance, defaults=semantic_check_data)
-    #     return instance

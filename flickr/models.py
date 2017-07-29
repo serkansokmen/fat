@@ -110,6 +110,7 @@ class Annotation(models.Model):
     image = models.ForeignKey(Image)
     paint_image = ImageField(upload_to='paint_image')
     semantic_checks = models.ManyToManyField(SemanticCheck, through='AnnotationSemanticCheck')
+    marked_objects = models.ManyToManyField('MarkedObject')
 
     created_at = models.DateTimeField(auto_now=False, auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, auto_now_add=False)
@@ -163,7 +164,6 @@ class MarkedObject(models.Model):
         (3, _('Elder')),
     )
 
-    annotation = models.ForeignKey(Annotation, on_delete=models.CASCADE, related_name='marked_objects')
     object_type = models.IntegerField(_('Type'), choices=OBJECT_TYPES)
     gender = models.IntegerField(choices=GENDERS, blank=True, null=True)
     age_group = models.IntegerField(choices=AGE_GROUPS, blank=True, null=True)
