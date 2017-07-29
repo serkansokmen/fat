@@ -7,7 +7,11 @@ from django.template.loader import render_to_string
 from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 from sorl.thumbnail.admin import AdminImageMixin
-from .models import Search, Image, DiscardedImage, Annotation, SemanticCheck, AnnotationSemanticCheck
+from .models import (
+    Search, Image, DiscardedImage, Annotation,
+    SemanticCheck, AnnotationSemanticCheck,
+    MarkedObject,
+)
 
 
 @admin.register(DiscardedImage)
@@ -56,11 +60,16 @@ class AnnotationSemanticCheckInline(admin.TabularInline):
     extra = 0
 
 
+class MarkedObjectInline(admin.StackedInline):
+    model = MarkedObject
+    extra = 0
+
+
 @admin.register(Annotation)
 class AnnotationAdmin(AdminImageMixin, admin.ModelAdmin):
-    list_display = ('preview_tag',)
+    list_display = ('preview_tag', 'semantic_check_count', 'marked_object_count')
     list_display_links = ('preview_tag',)
-    inlines = [AnnotationSemanticCheckInline]
+    inlines = [AnnotationSemanticCheckInline, MarkedObjectInline]
 
     def preview_tag(self, obj):
         return '''
@@ -71,6 +80,16 @@ class AnnotationAdmin(AdminImageMixin, admin.ModelAdmin):
         '''.format(obj.image.get_flickr_url, obj.paint_image.url)
     preview_tag.short_description = _('Composite')
     preview_tag.allow_tags = True
+
+    def semantic_check_count(self, obj):
+        return obj.semantic_checks.count()
+    semantic_check_count.short_description = _('Semantic check count')
+    semantic_check_count.allow_tags = True
+
+    def marked_object_count(self, obj):
+        return obj.marked_objects.count()
+    marked_object_count.short_description = _('Marked object count')
+    marked_object_count.allow_tags = True
 
 
     def paint_image_tag(self, obj):

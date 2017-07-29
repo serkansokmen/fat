@@ -121,7 +121,7 @@ class Annotation(models.Model):
         ordering = ['-created_at', '-updated_at',]
 
     def __str__(self):
-        return '{}'.format(self.image)
+        return 'Annotation for image: {}'.format(self.image)
 
 
 class AnnotationSemanticCheck(models.Model):
@@ -130,14 +130,62 @@ class AnnotationSemanticCheck(models.Model):
     value = models.FloatField(default=0.0)
 
     class Meta:
-        verbose_name = _('Annotation semantic check')
-        verbose_name_plural = _('Annotation semantic checks')
+        verbose_name = _('Semantic check')
+        verbose_name_plural = _('Semantic checks')
         ordering = ['-value']
         unique_together = ('annotation', 'semantic_check')
 
     def __str__(self):
-        return '{}::{}: {}'.format(self.annotation, self.semantic_check.label, self.value)
+        return '{}::{}'.format(self.semantic_check.label, self.value)
 
+
+class MarkedObject(models.Model):
+
+    OBJECT_TYPES = (
+        (0, _('Face')),
+        (1, _('Genital')),
+        (2, _('Buttock')),
+        (3, _('Breast')),
+        (4, _('Foot')),
+        (5, _('Hand')),
+        (6, _('Arm')),
+    )
+
+    GENDERS = (
+        (0, _('Female')),
+        (1, _('Male')),
+    )
+
+    AGE_GROUPS = (
+        (0, _('Child')),
+        (1, _('Teen')),
+        (2, _('Adult')),
+        (3, _('Elder')),
+    )
+
+    annotation = models.ForeignKey(Annotation, on_delete=models.CASCADE, related_name='marked_objects')
+    object_type = models.IntegerField(_('Type'), choices=OBJECT_TYPES)
+    gender = models.IntegerField(choices=GENDERS, blank=True, null=True)
+    age_group = models.IntegerField(choices=AGE_GROUPS, blank=True, null=True)
+
+    class Meta:
+        verbose_name = _('Marked Object')
+        verbose_name_plural = _('Marked objects')
+        ordering = ['-object_type', '-age_group', '-gender']
+
+    x = models.IntegerField()
+    y = models.IntegerField()
+    width = models.IntegerField()
+    height = models.IntegerField()
+
+    class Meta:
+        verbose_name = _('Marked object')
+        verbose_name_plural = _('Marked objects')
+        ordering = []
+
+    def __str__(self):
+        return '{}:: x: {}, y: {}, width: {}, height: {}'.format(
+            self.object_type, self.x, self.y, self.width, self.height)
 
 
 @receiver(post_delete, sender=Search)
