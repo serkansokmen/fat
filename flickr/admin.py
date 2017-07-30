@@ -67,7 +67,7 @@ make_approved.short_description = "Mark selected annotations as approved"
 @admin.register(Annotation)
 class AnnotationAdmin(AdminImageMixin, admin.ModelAdmin):
     list_display = ('preview_tag', 'semantic_check_count', 'marked_object_count', 'is_approved')
-    list_filter = ('is_approved', 'created_at', 'updated_at', 'semantic_checks', 'marked_objects')
+    list_filter = ('is_approved', 'created_at', 'updated_at', 'semantic_checks')
     list_display_links = ('preview_tag',)
     filter_horizontal = ('marked_objects',)
     inlines = [AnnotationSemanticCheckInline,]
