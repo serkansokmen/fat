@@ -3,17 +3,19 @@
 
 {% block title %}Flickr Annotation Tool{% endblock title %}
 
-{% block head %}
-<base href="/">
-{% endblock head %}
-
 {% block content %}
-<fat-root></fat-root>
+<div class="container">
+  <div class="jumbotron">
+    <h1>Flickr Annotation Tool</h1>
+    <br>
+    <ul>
+      <li>
+        <a href="{{ static_hosting_url }}">Search and annotate</a>
+      </li>
+      <li>
+        <a href="/admin">Admin</a>
+      </li>
+    </ul>
+  </div>
+</div>
 {% endblock %}
-
-{% block js %}
-<script type="text/javascript" src="{% static 'dist/inline.bundle.js' %}"></script>
-<script type="text/javascript" src="{% static 'dist/polyfills.bundle.js' %}"></script>
-<script type="text/javascript" src="{% static 'dist/vendor.bundle.js' %}"></script>
-<script type="text/javascript" src="{% static 'dist/main.bundle.js' %}"></script>
-{% endblock js %}
