@@ -115,6 +115,8 @@ class Annotation(models.Model):
     created_at = models.DateTimeField(auto_now=False, auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, auto_now_add=False)
 
+    is_approved = models.BooleanField(default=False)
+
     class Meta:
         verbose_name = _('Annotation')
         verbose_name_plural = _('Annotations')

@@ -5,7 +5,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.utils.translation import ugettext_lazy as _
 from django.http import JsonResponse
 from django_filters import rest_framework as filters
@@ -262,7 +262,7 @@ class ImageViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if 'annotated_only' in self.request.query_params:
-            return Image.objects.filter(annotation__exact=None)
+            return Image.objects.filter(Q(annotation__exact=None) or Q(annotation__is_approved=False))
         return Image.objects.all()
 
 

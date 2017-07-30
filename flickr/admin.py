@@ -60,17 +60,18 @@ class AnnotationSemanticCheckInline(admin.TabularInline):
     extra = 0
 
 
-# class MarkedObjectInline(admin.StackedInline):
-#     model = MarkedObject
-#     extra = 0
-
+def make_approved(modeladmin, request, queryset):
+    queryset.update(is_approved=True)
+make_approved.short_description = "Mark selected annotations as approved"
 
 @admin.register(Annotation)
 class AnnotationAdmin(AdminImageMixin, admin.ModelAdmin):
-    list_display = ('preview_tag', 'semantic_check_count', 'marked_object_count')
+    list_display = ('preview_tag', 'semantic_check_count', 'marked_object_count', 'is_approved')
+    list_filter = ('is_approved', 'created_at', 'updated_at', 'semantic_checks', 'marked_objects')
     list_display_links = ('preview_tag',)
     filter_horizontal = ('marked_objects',)
     inlines = [AnnotationSemanticCheckInline,]
+    actions = [make_approved]
 
     def preview_tag(self, obj):
         return '''
