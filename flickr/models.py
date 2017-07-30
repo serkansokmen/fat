@@ -50,15 +50,6 @@ class FlickrImage(models.Model):
     def get_flickr_thumbnail(self):
         return '{}_q.jpg'.format(self.get_flickr_image_base())
 
-    # def download_image(self):
-    #     if not self.image:
-    #         img_id = self.id
-    #         img_url = self.get_flickr_url()
-    #         img_temp = NamedTemporaryFile(delete=True)
-    #         img_temp.write(urlopen(img_url).read())
-    #         img_temp.flush()
-    #         self.image.save(img_id + '.jpg', File(img_temp))
-
 
 class DiscardedImage(FlickrImage):
 
@@ -104,22 +95,27 @@ class Search(models.Model):
 class SemanticCheck(models.Model):
 
     label = models.CharField(max_length=255)
-    value = models.FloatField(default=1.0)
 
     class Meta:
-        verbose_name = _('Semantic check value')
-        verbose_name_plural = _('Semantic check values')
-        ordering = ['label']
+        verbose_name = _('Semantic check')
+        verbose_name_plural = _('Semantic checks')
+        ordering = ['id']
+
+    def __str__(self):
+        return '{}'.format(self.label)
 
 
 class Annotation(models.Model):
 
     image = models.ForeignKey(Image)
     paint_image = ImageField(upload_to='paint_image')
-    semantic_check_values = models.ManyToManyField(SemanticCheck, through='AnnotationSemanticCheck')
+    semantic_checks = models.ManyToManyField(SemanticCheck, through='AnnotationSemanticCheck')
+    marked_objects = models.ManyToManyField('MarkedObject')
 
     created_at = models.DateTimeField(auto_now=False, auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, auto_now_add=False)
+
+    is_approved = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = _('Annotation')
@@ -128,14 +124,70 @@ class Annotation(models.Model):
         ordering = ['-created_at', '-updated_at',]
 
     def __str__(self):
-        return '{}'.format(self.image)
+        return 'Annotation for image: {}'.format(self.image)
 
 
 class AnnotationSemanticCheck(models.Model):
     annotation = models.ForeignKey(Annotation, on_delete=models.CASCADE)
     semantic_check = models.ForeignKey(SemanticCheck, on_delete=models.CASCADE)
-    value = models.FloatField(default=1.0)
+    value = models.FloatField(default=0.0)
 
+    class Meta:
+        verbose_name = _('Semantic check')
+        verbose_name_plural = _('Semantic checks')
+        ordering = ['-value']
+        unique_together = ('annotation', 'semantic_check')
+
+    def __str__(self):
+        return '{}::{}'.format(self.semantic_check.label, self.value)
+
+
+class MarkedObject(models.Model):
+
+    OBJECT_TYPES = (
+        (0, _('Face')),
+        (1, _('Genital')),
+        (2, _('Buttock')),
+        (3, _('Breast')),
+        (4, _('Foot')),
+        (5, _('Hand')),
+        (6, _('Arm')),
+    )
+
+    GENDERS = (
+        (0, _('Female')),
+        (1, _('Male')),
+    )
+
+    AGE_GROUPS = (
+        (0, _('Child')),
+        (1, _('Teen')),
+        (2, _('Adult')),
+        (3, _('Elder')),
+    )
+
+    object_type = models.IntegerField(_('Type'), choices=OBJECT_TYPES)
+    gender = models.IntegerField(choices=GENDERS, blank=True, null=True)
+    age_group = models.IntegerField(choices=AGE_GROUPS, blank=True, null=True)
+
+    class Meta:
+        verbose_name = _('Marked Object')
+        verbose_name_plural = _('Marked objects')
+        ordering = ['-object_type', '-age_group', '-gender']
+
+    x = models.IntegerField()
+    y = models.IntegerField()
+    width = models.IntegerField()
+    height = models.IntegerField()
+
+    class Meta:
+        verbose_name = _('Marked object')
+        verbose_name_plural = _('Marked objects')
+        ordering = []
+
+    def __str__(self):
+        return '{}:: x: {}, y: {}, width: {}, height: {}'.format(
+            self.OBJECT_TYPES[self.object_type][1], self.x, self.y, self.width, self.height)
 
 
 @receiver(post_delete, sender=Search)

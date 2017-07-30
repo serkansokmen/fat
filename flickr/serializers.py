@@ -3,7 +3,12 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers, permissions, response
 from drf_extra_fields.fields import Base64ImageField
-from .models import Search, Image, DiscardedImage, Annotation
+from .models import (
+    Search, Image, DiscardedImage,
+    Annotation,
+    SemanticCheck, AnnotationSemanticCheck,
+    MarkedObject
+)
 
 
 class ImageSerializer(serializers.ModelSerializer):
@@ -65,15 +70,40 @@ class SearchSerializer(serializers.ModelSerializer):
         return instance
 
 
+class SemanticCheckSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SemanticCheck
+        exclude = []
+
+
+class AnnotationSemanticCheckSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = AnnotationSemanticCheck
+        exclude = []
+
+
+class MarkedObjectSerializer(serializers.ModelSerializer):
+
+    gender = serializers.ChoiceField(choices=MarkedObject.GENDERS, required=False)
+    age_group = serializers.ChoiceField(choices=MarkedObject.AGE_GROUPS, required=False)
+
+    class Meta:
+        model = MarkedObject
+        exclude = []
+
+
 class AnnotationSerializer(serializers.ModelSerializer):
 
-    paint_image = Base64ImageField(required=True)
-    image_url = serializers.SerializerMethodField()
+    paint_image = Base64ImageField(required=False)
+    image_url = serializers.SerializerMethodField(required=False)
+    marked_objects = MarkedObjectSerializer(many=True, required=False)
 
     class Meta:
         model = Annotation
         queryset = Annotation.objects.all()
-        fields = ('id', 'image', 'paint_image', 'image_url')
+        fields = ('id', 'image', 'paint_image', 'image_url', 'semantic_checks', 'marked_objects')
 
     def get_image_url(self, obj):
         return obj.image.get_flickr_url

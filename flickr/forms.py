@@ -6,4 +6,5 @@ class SearchForm(forms.ModelForm):
 
     class Meta:
         model = Search
-        fields = '__all__'
+        exclude = []
+

@@ -3,18 +3,22 @@ import json
 from django.conf import settings
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
+from django.db.models import Count, Q
 from django.utils.translation import ugettext_lazy as _
 from django.http import JsonResponse
 from django_filters import rest_framework as filters
-from rest_framework import viewsets, parsers, views
+from rest_framework import viewsets, parsers, views, mixins, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.decorators import list_route, detail_route
 from rest_framework import status
-from .models import Search, Image, DiscardedImage, Annotation
-from .serializers import SearchSerializer, ImageSerializer, AnnotationSerializer
+from .models import Search, Image, DiscardedImage, Annotation, SemanticCheck, \
+    AnnotationSemanticCheck, MarkedObject
+from .serializers import SearchSerializer, ImageSerializer, AnnotationSerializer, \
+    SemanticCheckSerializer, AnnotationSemanticCheckSerializer, MarkedObjectSerializer
 
 
 def make_search_query(request, flickr_page=0):
@@ -256,9 +260,67 @@ class ImageViewSet(viewsets.ModelViewSet):
     serializer_class = ImageSerializer
     pagination_class = LargeResultsSetPagination
 
+    def get_queryset(self):
+        if 'annotated_only' in self.request.query_params:
+            return Image.objects.filter(Q(annotation__exact=None) or Q(annotation__is_approved=False))
+        return Image.objects.all()
+
 
 class AnnotationViewSet(viewsets.ModelViewSet):
 
     queryset = Annotation.objects.all()
     serializer_class = AnnotationSerializer
+    pagination_class = StandardResultsSetPagination
+
+    def retrieve(self, request, pk=None):
+        annotation = get_object_or_404(self.queryset, pk=pk)
+        serializer = self.get_serializer(annotation)
+        return Response(serializer.data)
+
+    # def create(self, request):
+    #     image_id = get_object_or_404(Image, pk=request.data.get('image'))
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.image_id = image_id
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         # annotation = Annotation.objects.create(**serializer.data)
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #     return Response(serializer.errors)
+
+    def partial_update(self, request, pk=None):
+        if pk is not None:
+            annotation = Annotation.objects.get(pk=pk)
+
+            semantic_checks = request.data.get('semantic_checks')
+            if semantic_checks is not None:
+                AnnotationSemanticCheck.objects.filter(annotation=annotation).delete()
+                annotation_semantic_check_serializer = AnnotationSemanticCheckSerializer(
+                    data=semantic_checks, many=True)
+                if annotation_semantic_check_serializer.is_valid():
+                    annotation_semantic_check_serializer.save()
+
+            marked_objects = request.data.get('marked_objects')
+            if marked_objects is not None:
+                # marked_objects_serializer = MarkedObjectSerializer(data=marked_objects, many=True)
+                annotation.marked_objects.all().delete()
+                for data in marked_objects:
+                    marked_object = MarkedObject.objects.create(**data)
+                    # import ipdb; ipdb.set_trace()
+                    annotation.marked_objects.add(marked_object)
+                annotation.save()
+            annotation_serializer = self.get_serializer(annotation)
+            return Response(annotation_serializer.data)
+
+
+class SemanticCheckViewSet(viewsets.ModelViewSet):
+
+    queryset = SemanticCheck.objects.all()
+    serializer_class = SemanticCheckSerializer
+    pagination_class = StandardResultsSetPagination
+
+
+class AnnotationSemanticCheckViewSet(viewsets.ModelViewSet):
+
+    queryset = AnnotationSemanticCheck.objects.all()
+    serializer_class = AnnotationSemanticCheckSerializer
     pagination_class = StandardResultsSetPagination
