@@ -6,6 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.db.models import Count, Q
+from django.views.generic.base import TemplateView
 from django.utils.translation import ugettext_lazy as _
 from django.http import JsonResponse
 from django_filters import rest_framework as filters
@@ -19,6 +20,16 @@ from .models import Search, Image, DiscardedImage, Annotation, SemanticCheck, \
     AnnotationSemanticCheck, MarkedObject
 from .serializers import SearchSerializer, ImageSerializer, AnnotationSerializer, \
     SemanticCheckSerializer, AnnotationSemanticCheckSerializer, MarkedObjectSerializer
+
+
+
+class HomeView(TemplateView):
+    template_name = 'flickr/app.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(HomeView, self).get_context_data(**kwargs)
+        context['static_hosting_url'] = settings.STATIC_HOSTING_URL
+        return context
 
 
 def make_search_query(request, flickr_page=0):

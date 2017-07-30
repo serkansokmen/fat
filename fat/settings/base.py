@@ -149,11 +149,12 @@ DATABASES = {
 
 EMAIL_BACKEND = 'backends.smtp.EmailBackend'
 
+STATIC_HOSTING_URL = os.getenv('STATIC_HOSTING_URL', 'http://localhost:4200')
 CORS_ORIGIN_WHITELIST = (
-    os.getenv('STATIC_HOSTING_URL'),
+    STATIC_HOSTING_URL,
 )
 CSRF_TRUSTED_ORIGINS = (
-    os.getenv('STATIC_HOSTING_URL'),
+    STATIC_HOSTING_URL,
 )
 CORS_ORIGIN_ALLOW_ALL = False
 
