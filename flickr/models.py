@@ -121,7 +121,7 @@ class Annotation(models.Model):
         verbose_name = _('Annotation')
         verbose_name_plural = _('Annotations')
         get_latest_by = 'updated_at'
-        ordering = ['-created_at', '-updated_at',]
+        ordering = ['-is_approved', '-created_at', '-updated_at',]
 
     def __str__(self):
         return 'Annotation for image: {}'.format(self.image)
