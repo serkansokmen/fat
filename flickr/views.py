@@ -120,7 +120,7 @@ def flickr(request):
         search_serializer = SearchSerializer(search)
         image_serializer = ImageSerializer(data=photos_results, many=True)
 
-        if flickr_total == search.images.count() or flickr_total == 0:
+        if flickr_total == 0:
 
             # check if all is already added
             return Response({
@@ -203,25 +203,10 @@ def flickr(request):
                     (discarded, created) = DiscardedImage.objects.get_or_create(id=image.get('id'), defaults=image)
             search.save()
 
-        json = make_search_query(request)
-
-        if json is None:
-            return Response({'message': _('An error occured parsing response data.')})
-
-        results = json['photos']
-        flickr_pages = int(results['pages'])
-        flickr_page = int(results['page'])
-        flickr_total = int(results['total'])
-        filtered_images = get_filtered_images(results['photo'], req_cursor, req_perpage)
-
+        search = Search.objects.get(tags=search.tags)
+        search_serializer = SearchSerializer(search)
         return Response({
-            'total': flickr_total,
-            'left': max(flickr_total - search.images.count(), 0),
             'search': search_serializer.data,
-            'images': filtered_images,
-            'page': req_page,
-            'perpage': req_perpage,
-            'cursor': (req_page - 1) * req_perpage,
         })
 
     return Response({'message': _('GET, POST or PUT required.')}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
