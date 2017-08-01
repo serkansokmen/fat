@@ -189,8 +189,9 @@ def flickr(request):
         (search, created) = Search.objects.get_or_create(
             tags=request.data.get('tags'), defaults=request.data)
         search_serializer = SearchSerializer(search)
-        image_serializer = ImageSerializer(data=images_data, many=True)
+        search.save()
 
+        image_serializer = ImageSerializer(data=images_data, many=True)
         if image_serializer.is_valid():
             for image in image_serializer.validated_data:
                 state = image.pop('state')
