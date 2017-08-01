@@ -120,7 +120,7 @@ def flickr(request):
         search_serializer = SearchSerializer(search)
         image_serializer = ImageSerializer(data=photos_results, many=True)
 
-        if flickr_total == search.images.all() or flickr_total == 0:
+        if flickr_total == search.images.count() or flickr_total == 0:
 
             # check if all is already added
             return Response({
@@ -317,7 +317,6 @@ class AnnotationViewSet(viewsets.ModelViewSet):
                 annotation.marked_objects.all().delete()
                 for data in marked_objects:
                     marked_object = MarkedObject.objects.create(**data)
-                    # import ipdb; ipdb.set_trace()
                     annotation.marked_objects.add(marked_object)
                 annotation.save()
             annotation_serializer = self.get_serializer(annotation)
