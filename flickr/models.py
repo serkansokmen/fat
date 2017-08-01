@@ -193,7 +193,7 @@ class MarkedObject(models.Model):
 @receiver(post_delete, sender=Search)
 def clean_search_images(sender, instance, **kwargs):
     for image in Image.objects.all():
-        if image.search.count() == 0:
+        if image.search.count() == 0 and image.annotation_set.count() == 0:
             image.delete()
 
 
