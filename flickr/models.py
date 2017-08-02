@@ -133,8 +133,8 @@ class AnnotationSemanticCheck(models.Model):
     value = models.FloatField(default=0.0)
 
     class Meta:
-        verbose_name = _('Semantic check')
-        verbose_name_plural = _('Semantic checks')
+        verbose_name = _('Annotation semantic check')
+        verbose_name_plural = _('Annotation semantic checks')
         ordering = ['-value']
         unique_together = ('annotation', 'semantic_check')
 
