@@ -1,3 +1,4 @@
+import uuid
 from urllib.request import urlopen
 from django.core.files import File
 from django.core.files.temp import NamedTemporaryFile
@@ -166,6 +167,7 @@ class MarkedObject(models.Model):
         (3, _('Elder')),
     )
 
+    uuid = models.UUIDField(_('uuid'), default=uuid.uuid4, unique=True)
     object_type = models.IntegerField(_('Type'), choices=OBJECT_TYPES)
     gender = models.IntegerField(choices=GENDERS, blank=True, null=True)
     age_group = models.IntegerField(choices=AGE_GROUPS, blank=True, null=True)
