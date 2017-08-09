@@ -1,4 +1,3 @@
-# fat
 ### Flickr Annotation Tool
 
-Backend and Rest API
+Django Backend and Rest API
