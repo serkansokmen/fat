@@ -88,6 +88,7 @@ class MarkedObjectSerializer(serializers.ModelSerializer):
 
     gender = serializers.ChoiceField(choices=MarkedObject.GENDERS, required=False)
     age_group = serializers.ChoiceField(choices=MarkedObject.AGE_GROUPS, required=False)
+    uuid = serializers.UUIDField(required=False)
 
     class Meta:
         model = MarkedObject
