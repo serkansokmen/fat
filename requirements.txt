@@ -5,7 +5,7 @@ djangorestframework==3.6.3
 django-cors-middleware
 django-rest-auth
 django-extra-fields
-django-crispy-forms==1.6.1
+django-crispy-forms==1.9.1
 django-extensions==1.7.9
 django-multiselectfield
 django-filter
