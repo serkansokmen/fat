@@ -1,7 +1,7 @@
 Django==1.11.29
 Pillow==4.3.0
 django-storages
-djangorestframework==3.6.3
+djangorestframework==3.11.2
 django-cors-middleware
 django-rest-auth
 django-extra-fields
