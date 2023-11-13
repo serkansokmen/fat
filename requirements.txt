@@ -11,7 +11,7 @@ django-multiselectfield
 django-filter
 django-dotenv
 gunicorn==19.7.1
-psycopg2==2.7.1
+psycopg2==2.9.9
 redis==2.10.5
 sorl-thumbnail==12.4a1
 sorl-thumbnail-serializer-field==0.1
